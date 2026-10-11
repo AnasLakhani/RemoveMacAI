@@ -46,22 +46,22 @@ struct Sidebar: View {
   var body: some View {
     @Bindable var model = model
     List(selection: $model.page) {
-      row(.overview, badge: 0)
+      row(.overview)
       Section("Turn Off") {
-        row(.intelligence, badge: model.aiPending ? 1 : 0)
+        row(.intelligence, badge: model.aiPending ? Text("1") : nil)
         ForEach([TweakGroup.privacy, .annoyances, .apps], id: \.self) { group in
-          row(.group(group), badge: model.pending(in: group))
+          row(.group(group), badge: count(group))
         }
-        row(.background, badge: 0)
+        row(.background)
       }
       Section("Customize") {
         ForEach([TweakGroup.finder, .windows, .typing], id: \.self) { group in
-          row(.group(group), badge: model.pending(in: group))
+          row(.group(group), badge: count(group))
         }
       }
       Section("Clean Up") {
-        row(.storage, badge: 0)
-        row(.changes, badge: 0)
+        row(.storage)
+        row(.changes)
       }
     }
     .listStyle(.sidebar)
@@ -77,10 +77,15 @@ struct Sidebar: View {
     }
   }
 
-  func row(_ page: Page, badge: Int) -> some View {
+  func row(_ page: Page, badge: Text? = nil) -> some View {
     Label(page.title, systemImage: page.symbol)
       .badge(badge)
       .tag(page)
+  }
+
+  func count(_ group: TweakGroup) -> Text? {
+    let c = model.switchedOn(in: group)
+    return c.on > 0 ? Text("\(c.on) of \(c.total)") : nil
   }
 }
 

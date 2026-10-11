@@ -203,10 +203,10 @@ enum Tweaks {
         .pref("com.apple.WindowManager", "StageManagerHideWidgets", .bool(true)),
       ]),
     Tweak(
-      id: "media-keys", group: .annoyances, title: "Stop the play key opening Music",
-      detail: "Stops the play key opening Music when nothing else is playing.",
-      caveat: "The play key no longer starts Music itself.",
-      changes: [.service("com.apple.rcd")], presets: [.recommended]),
+      id: "media-keys", group: .annoyances, title: "Turn off the play, pause and skip keys",
+      detail: "Turns off the service behind the media keys, so the play key can't open Music.",
+      caveat: "The keys stop working in every app, including VLC and Spotify. To keep them and only stop Music opening, use Block Music launches instead.",
+      changes: [.service("com.apple.rcd")]),
     Tweak(
       id: "music-launches", group: .annoyances, title: "Block Music launches, including from AirPods",
       detail: "Disables Music's application launch entry, so an AirPod press no longer opens it. No background helper or configuration profile is installed.",

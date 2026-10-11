@@ -10,8 +10,8 @@ struct OverviewView: View {
       VStack(alignment: .leading, spacing: 18) {
         StatusHero()
         HStack(spacing: 12) {
-          StatTile(title: "Settings changed", value: "\(model.appliedCount) of \(model.availableCount)", link: "Browse settings") {
-            model.page = .group(.privacy)
+          StatTile(title: "Settings changed", value: "\(model.appliedCount) of \(model.availableCount)", link: model.appliedCount > 0 ? "See which ones" : "Browse settings") {
+            model.page = .group(TweakGroup.allCases.first { model.switchedOn(in: $0).on > 0 } ?? .privacy)
           }
           StatTile(title: "Apps running in the background", value: model.background.isEmpty ? "None" : "\(model.background.count)", link: "See what they are") {
             model.page = .background

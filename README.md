@@ -66,7 +66,7 @@ The app and the command line are the same program and share the same undo histor
 |---|---|
 | Apple Intelligence | Siri, Writing Tools, Genmoji, Image Playground, ChatGPT, summaries in Mail, Messages, Safari, Notes and notifications, inline predictions, Spatial Photos, Photos Clean Up, Xcode predictive completion. The models are deleted and blocked from downloading again. Keep any feature you use. |
 | Privacy | Mac Analytics, personalized ads, Improve Siri and Dictation, Improve Search, Spotlight internet results, Look Up suggestions, Safari search suggestions, Game Center |
-| Annoyances | Clicking the wallpaper hiding every window, desktop widgets, the play key opening Music, all Music launches (including AirPods; opt-in), iPhone Mirroring |
+| Annoyances | Clicking the wallpaper hiding every window, desktop widgets, the media keys, all Music launches (including AirPods; opt-in), iPhone Mirroring |
 | Apple apps | Apple Music in the Music app, the Book Store, unused Apple apps in the Dock |
 | Finder | File extensions, hidden files, the path and status bars, folders first, searching the current folder, the extension warning, `.DS_Store` files on network drives, emptying the Trash after 30 days, saving to your Mac instead of iCloud, the Library folder |
 | Dock and windows | Recent apps, the auto-hide delay, bouncing icons, minimizing into the app icon, window animations, gaps between tiled windows, screenshot shadows |
@@ -133,7 +133,7 @@ System Integrity Protection stays on, nothing under `/System` is modified, and R
 ## What it doesn't do
 
 - **Delete Apple's built-in apps.** They live on the sealed system volume. Removing them needs System Integrity Protection off, and a failed attempt can leave the Mac unable to start. RemoveMacAI quiets them instead and removes the optional apps that Apple lets you delete.
-- **Mass-disable Apple's background services.** With System Integrity Protection on, macOS refuses to unload most of them, and many start again whenever an app asks for them. RemoveMacAI switches off the one that unloads cleanly (the play key opening Music) and other apps' background items.
+- **Mass-disable Apple's background services.** With System Integrity Protection on, macOS refuses to unload most of them, and many start again whenever an app asks for them. RemoveMacAI switches off the one that unloads cleanly (the media keys) and other apps' background items.
 
 ## FAQ
 

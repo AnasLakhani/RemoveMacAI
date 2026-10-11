@@ -190,6 +190,12 @@ final class AppModel {
 
   func pending(in group: TweakGroup) -> Int { pendingTweaks.filter { $0.tweak.group == group }.count }
 
+  /// Switches on in a group, out of the ones that can change, for the sidebar.
+  func switchedOn(in group: TweakGroup) -> (on: Int, total: Int) {
+    let tweaks = Tweaks.all.filter { $0.group == group && state($0) != .unsupported && state($0) != .managed }
+    return (tweaks.filter { wanted.contains($0.id) }.count, tweaks.count)
+  }
+
   func discard() { reload(resetChoices: true) }
 
   func plan() -> Plan { Plan.make(wanted: wanted, ai: targetAI, undo: touched, snapshot: snapshot) }
