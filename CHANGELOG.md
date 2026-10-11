@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+- A welcome guide opens the first time you run the app. It covers what the app changes and what it leaves alone, shows where to approve the profile in System Settings, and starts you from a preset or from nothing. Help > How RemoveMacAI Works opens it again.
+- Every setting describes what it does in plain words. The info buttons explain the profile, the models and the locked settings.
+- The review screen lists every change before anything happens and says what Apply does next. Show exact settings lists the commands.
+- While you approve the profile, the app shows where to click in System Settings and can show the profile file in Finder so you can read it first.
+- The sidebar shows how many settings are on in each section, and Settings changed on the Overview opens the first section that has one (#39, #41).
+- The play key setting now says it turns off every media key, so VLC and Spotify lose them too, and it's no longer part of Recommended. Block Music launches stops Music from opening and leaves the keys working (#42).
+- The app now targets macOS 26 and uses the system's Liquid Glass controls.
+
 ## 1.0.3
 
 - New opt-in tweak, Block Music launches. It stops AirPods and the play key from opening Music, closes Music if it's running, and blocks opening it by hand. Undo puts everything back. Apply it again after a macOS update replaces Music.
