@@ -69,11 +69,26 @@ final class AppModel {
   var run: RunState?
   private var cancelWait = false
 
+  var showingWelcome = false
+  var welcomePage = 0
+  static let welcomeSeenKey = "WelcomeSeen"
+
   static weak var shared: AppModel?
 
   init() {
     reload(resetChoices: true)
     AppModel.shared = self
+    if !UserDefaults.standard.bool(forKey: Self.welcomeSeenKey) { showingWelcome = true }
+  }
+
+  func openWelcome() {
+    welcomePage = 0
+    showingWelcome = true
+  }
+
+  func closeWelcome() {
+    showingWelcome = false
+    UserDefaults.standard.set(true, forKey: Self.welcomeSeenKey)
   }
 
   // MARK: reading

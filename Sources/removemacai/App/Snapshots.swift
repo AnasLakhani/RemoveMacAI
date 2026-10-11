@@ -16,12 +16,23 @@
       Task { @MainActor in
         try? await Task.sleep(nanoseconds: 2_000_000_000)
         guard let model = AppModel.shared else { return }
+        model.showingWelcome = false
         model.scan()
         while model.scanning || !model.scanned { try? await Task.sleep(nanoseconds: 300_000_000) }
         for (name, page) in pages {
           model.page = page
           try? await Task.sleep(nanoseconds: 1_200_000_000)
           save(name, dir)
+        }
+        if ProcessInfo.processInfo.environment["REMOVEMACAI_SNAPSHOTS_WELCOME"] != nil {
+          for i in 0..<3 {
+            model.welcomePage = i
+            model.showingWelcome = true
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            save("welcome-\(i + 1)", dir)
+          }
+          model.showingWelcome = false
+          try? await Task.sleep(nanoseconds: 800_000_000)
         }
         if ProcessInfo.processInfo.environment["REMOVEMACAI_SNAPSHOTS_REVIEW"] != nil {
           model.page = .overview

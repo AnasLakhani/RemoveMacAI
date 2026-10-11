@@ -6,107 +6,167 @@ struct OverviewView: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    Form {
-      Section {
-        StatusRow(
-          symbol: "apple.intelligence", title: "Apple Intelligence",
-          value: aiText, good: model.currentAI != nil
-        ) { model.page = .intelligence }
-        StatusRow(
-          symbol: "slider.horizontal.3", title: "Tweaks",
-          value: "\(model.appliedCount) of \(model.availableCount) applied", good: model.appliedCount > 0
-        ) { model.page = .group(.privacy) }
-        StatusRow(
-          symbol: "gearshape.2", title: "Background items from other apps",
-          value: backgroundText, good: model.background.isEmpty || !model.backgroundOff.isEmpty
-        ) { model.page = .background }
-        StatusRow(
-          symbol: "internaldrive", title: "Space you can get back",
-          value: model.scanned ? Term.size(model.storage.reduce(0) { $0 + $1.bytes }) : "Not scanned yet", good: false
-        ) { model.page = .storage }
-      } header: {
-        VStack(alignment: .leading, spacing: 18) {
-          VStack(alignment: .leading, spacing: 6) {
-            Text("Debloat this Mac")
-              .font(.system(size: 28, weight: .bold))
-              .foregroundStyle(.primary)
-            Text("Turn off Apple Intelligence, analytics and the pop-ups macOS adds, and get disk space back. You see every change before it happens, and you can undo all of it.")
-              .font(.body)
-              .foregroundStyle(.secondary)
-              .fixedSize(horizontal: false, vertical: true)
-            Text("Apple Intelligence removal builds on [pared](https://github.com/4evy/pared) by 4evy.")
-              .font(.callout)
-              .foregroundStyle(.tertiary)
-              .tint(.secondary)
+    ScrollView {
+      VStack(alignment: .leading, spacing: 18) {
+        StatusHero()
+        HStack(spacing: 12) {
+          StatTile(title: "Settings changed", value: "\(model.appliedCount) of \(model.availableCount)", link: "Browse settings") {
+            model.page = .group(.privacy)
           }
-          Text("This Mac")
+          StatTile(title: "Apps running in the background", value: model.background.isEmpty ? "None" : "\(model.background.count)", link: "See what they are") {
+            model.page = .background
+          }
+          StatTile(
+            title: "Space you can get back",
+            value: model.scanned ? Term.size(model.storage.reduce(0) { $0 + $1.bytes }) : "Not checked",
+            link: model.scanned ? "Old installers and caches" : "Check now"
+          ) {
+            model.page = .storage
+            if !model.scanned && !model.scanning { model.scan() }
+          }
         }
-        .textCase(nil)
-        .padding(.top, 4)
-      }
-
-      Section {
-        ForEach(Preset.allCases) { preset in
-          HStack(alignment: .top, spacing: 14) {
-            Image(systemName: preset == .recommended ? "checkmark.seal" : "hand.raised")
-              .font(.title2).foregroundStyle(.tint).frame(width: 28)
-            VStack(alignment: .leading, spacing: 3) {
-              Text(preset.title).font(.headline)
-              Text(preset.summary).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-              Text("\(Tweaks.preset(preset).count) tweaks and Apple Intelligence off")
-                .font(.caption).foregroundStyle(.tertiary)
-            }
-            Spacer()
-            Button("Choose…") {
-              model.choose(preset)
-              model.reviewing = true
+        VStack(alignment: .leading, spacing: 10) {
+          Text("Or start with a preset").font(.headline)
+          VStack(spacing: 0) {
+            ForEach(Array(Preset.allCases.enumerated()), id: \.element) { i, preset in
+              if i > 0 { Divider().padding(.leading, 56) }
+              HStack(alignment: .top, spacing: 14) {
+                Image(systemName: preset == .recommended ? "checkmark.seal" : "hand.raised")
+                  .font(.title2).foregroundStyle(.tint).frame(width: 28)
+                VStack(alignment: .leading, spacing: 3) {
+                  Text(preset.title).font(.headline)
+                  Text(preset.summary).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                  Text("\(Tweaks.preset(preset).count) settings and Apple Intelligence off")
+                    .font(.caption).foregroundStyle(.tertiary)
+                }
+                Spacer()
+                Button("Review…") {
+                  model.choose(preset)
+                  model.reviewing = true
+                }
+              }
+              .padding(14)
             }
           }
-          .padding(.vertical, 4)
+          .card()
+          Footer("A preset adds to what's already applied and changes nothing until you review it.")
         }
-      } header: {
-        Text("Start with a preset")
-      } footer: {
-        Footer("A preset adds to what's already applied and changes nothing until you review it. Pick single tweaks in the sidebar.")
+        SafetyCard { model.openWelcome() }
+          .padding(16)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .card()
+        Text("Apple Intelligence removal builds on [pared](https://github.com/4evy/pared) by 4evy.")
+          .font(.caption)
+          .foregroundStyle(.tertiary)
+          .tint(.secondary)
       }
+      .padding(24)
+      .frame(maxWidth: 820)
+      .frame(maxWidth: .infinity)
     }
-    .formStyle(.grouped)
     .navigationTitle("Overview")
-  }
-
-  var aiText: String {
-    if model.currentAI != nil { return model.modelTotal > 0 ? "Off, \(Term.size(model.modelTotal)) of models still on disk" : "Off" }
-    if model.loadingModels { return "On" }
-    return model.modelTotal > 0 ? "On, \(Term.size(model.modelTotal)) of models" : "On"
-  }
-
-  var backgroundText: String {
-    let n = model.background.count
-    if n == 0 { return "None" }
-    let off = model.backgroundOff.count
-    return off > 0 ? "\(n), \(off) turned off" : "\(n) running"
   }
 }
 
-struct StatusRow: View {
-  let symbol: String
+/// Apple Intelligence's state, how much space it takes, and the main action.
+struct StatusHero: View {
+  @Environment(AppModel.self) private var model
+
+  var off: Bool { model.currentAI != nil }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      HStack(spacing: 16) {
+        ZStack {
+          RoundedRectangle(cornerRadius: 12).fill((off ? Color.green : Color.orange).opacity(0.15))
+          Image(systemName: off ? "checkmark.shield.fill" : "apple.intelligence")
+            .font(.system(size: 24))
+            .foregroundStyle(off ? Color.green : Color.orange)
+        }
+        .frame(width: 52, height: 52)
+        .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: 3) {
+          Text(off ? "Apple Intelligence is off" : "Apple Intelligence is on")
+            .font(.title2.weight(.bold))
+          Text(subtitle).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
+        Spacer(minLength: 0)
+      }
+      if !off && model.modelTotal > 0, let disk = DiskSize.total {
+        ProgressView(value: Double(model.modelTotal), total: Double(max(disk, model.modelTotal)))
+          .tint(.orange)
+          .accessibilityLabel("\(Term.size(model.modelTotal)) of models out of \(Term.size(disk)) of storage")
+      }
+      HStack(spacing: 10) {
+        if off {
+          if model.modelTotal > 0 {
+            Button("Delete the Leftover Models…") { model.deleteLeftoverModels() }
+              .buttonStyle(.borderedProminent)
+          }
+          Button("Change What's Kept On") { model.page = .intelligence }
+        } else {
+          Button("Turn Off with Recommended Settings…") {
+            model.choose(.recommended)
+            model.reviewing = true
+          }
+          .buttonStyle(.borderedProminent)
+          Button("Choose What to Turn Off") { model.page = .intelligence }
+          Text("You'll see every change first.").font(.callout).foregroundStyle(.secondary)
+        }
+      }
+      .controlSize(.large)
+    }
+    .padding(20)
+    .card()
+  }
+
+  var subtitle: String {
+    if model.loadingModels { return "Checking how much space its models take…" }
+    if off {
+      if model.modelTotal > 0 { return "\(Term.size(model.modelTotal)) of models are still on disk. macOS won't download more." }
+      if let kept = model.currentAI, !kept.isEmpty { return "\(kept.count) feature\(kept.count == 1 ? " is" : "s are") kept on. Everything else is off and its models are gone." }
+      return "Its models are gone and macOS won't download them again."
+    }
+    if model.modelTotal > 0 { return "Its models take \(Term.size(model.modelTotal)) on this Mac, whether you use them or not." }
+    return "Its features are on. RemoveMacAI can turn off the ones you don't use."
+  }
+}
+
+struct StatTile: View {
   let title: String
   let value: String
-  let good: Bool
+  let link: String
   let action: () -> Void
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: 12) {
-        Image(systemName: symbol).frame(width: 22).foregroundStyle(.secondary)
-        Text(title)
-        Spacer()
-        Text(value).foregroundStyle(good ? Color.green : Color.secondary)
-        Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+      VStack(alignment: .leading, spacing: 4) {
+        Text(title).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+        Text(value).font(.title2.weight(.bold)).monospacedDigit()
+        Text(link).font(.callout).foregroundStyle(.tint)
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(14)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
+    .card()
+  }
+}
+
+enum DiskSize {
+  /// The capacity of the startup disk.
+  static var total: Int64? {
+    let values = try? URL(fileURLWithPath: "/").resourceValues(forKeys: [.volumeTotalCapacityKey])
+    return values?.volumeTotalCapacity.map(Int64.init)
+  }
+}
+
+extension View {
+  /// A grouped-box background that matches System Settings.
+  func card() -> some View {
+    background(RoundedRectangle(cornerRadius: 12).fill(Color(nsColor: .controlBackgroundColor)))
+      .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(nsColor: .separatorColor).opacity(0.6), lineWidth: 0.5))
   }
 }
 
@@ -122,13 +182,16 @@ struct IntelligenceView: View {
         Toggle(isOn: $model.aiOff) {
           VStack(alignment: .leading, spacing: 3) {
             Text("Turn off Apple Intelligence").font(.headline)
-            Text("Turns off Siri, Writing Tools, Genmoji, Image Playground, summaries and ChatGPT, deletes the models and stops macOS downloading them again.")
+            Text("Switches off the features below, deletes their models and stops macOS downloading them again. Turn it back on any time and macOS re-downloads what it needs.")
               .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
           }
         }
         .toggleStyle(.switch)
       } footer: {
-        Footer("macOS asks you to approve a configuration profile for this. Undo puts everything back. This part builds on pared by 4evy, which first mapped Apple's asset service and model sets.")
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+          Footer("macOS asks you to install a configuration profile for this, and Undo puts everything back. This part builds on pared by 4evy, which first mapped Apple's asset service and model sets.")
+          InfoButton(title: Explain.profile.0, text: Explain.profile.1)
+        }
       }
 
       Section {
@@ -138,16 +201,25 @@ struct IntelligenceView: View {
             set: { if $0 { model.aiKept.insert(feature.id) } else { model.aiKept.remove(feature.id) } }
           )) {
             VStack(alignment: .leading, spacing: 2) {
-              Text(feature.title)
-              Text(stateText(feature.id)).font(.caption).foregroundStyle(.secondary)
+              HStack(spacing: 6) {
+                Text(feature.title)
+                Text(stateText(feature.id)).font(.caption).foregroundStyle(.secondary)
+              }
+              if let blurb = FeatureBlurbs.text[feature.id] {
+                Text(blurb).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+              }
             }
           }
           .disabled(!model.aiOff)
         }
       } header: {
-        Text("Keep these on")
+        HStack {
+          Text("Keep anything you use")
+          Spacer()
+          if model.aiOff { Text("Switch on to keep").font(.caption).foregroundStyle(.secondary).textCase(nil) }
+        }
       } footer: {
-        Footer("A kept feature keeps the models it needs.")
+        Footer("A kept feature keeps the models it needs, so less space comes back.")
       }
 
       Section {
@@ -172,7 +244,10 @@ struct IntelligenceView: View {
           }
         }
       } header: {
-        Text("Models on disk")
+        HStack(spacing: 6) {
+          Text("Models on disk")
+          InfoButton(title: Explain.models.0, text: Explain.models.1)
+        }
       } footer: {
         Footer("macOS deletes the files on its own schedule, so Storage settings can count them for a while after removal.")
       }
@@ -183,10 +258,10 @@ struct IntelligenceView: View {
 
   func stateText(_ id: String) -> String {
     switch model.featureStates[id] {
-    case .lockedOff?: return "Off, locked by RemoveMacAI"
-    case .off?: return "Off"
-    case .on?: return "On"
-    default: return model.loadingModels ? "Checking…" : "Unknown"
+    case .lockedOff?: return "· Off, kept off by the profile"
+    case .off?: return "· Off"
+    case .on?: return "· On"
+    default: return model.loadingModels ? "· Checking…" : ""
     }
   }
 }
@@ -207,7 +282,10 @@ struct TweakGroupView: View {
         Text(group.summary).font(.body).foregroundStyle(.secondary).textCase(nil)
       } footer: {
         if tweaks.contains(where: \.inProfile) {
-          Footer("Settings with a lock are applied by the RemoveMacAI profile, which macOS asks you to approve.")
+          HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Footer("Settings with a lock are kept in place by the RemoveMacAI profile, which you install in System Settings.")
+            InfoButton(title: Explain.locked.0, text: Explain.locked.1)
+          }
         }
       }
     }
@@ -249,7 +327,7 @@ struct TweakRow: View {
           Text(tweak.title)
           if tweak.inProfile {
             Image(systemName: "lock.fill").font(.caption2).foregroundStyle(.tertiary)
-              .help("Locked by the RemoveMacAI profile")
+              .help("Kept in place by the RemoveMacAI profile")
           }
           if let note = pendingNote(state: state, wanted: wanted, undoes: model.undoes(tweak)) {
             Text(note).font(.caption.weight(.medium)).foregroundStyle(.tint)
@@ -495,4 +573,25 @@ struct Footer: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .fixedSize(horizontal: false, vertical: true)
   }
+}
+
+/// What each Apple Intelligence feature does, in a line, so people know what
+/// they keep or lose.
+enum FeatureBlurbs {
+  static let text: [String: String] = [
+    "siri": "The voice assistant. Keep it and basic Siri still works without the big models.",
+    "chatgpt": "Lets Siri and Writing Tools hand requests to ChatGPT.",
+    "writing-tools": "Rewrites, proofreads and summarizes text you select.",
+    "genmoji": "Makes new emoji from a description.",
+    "image-playground": "Generates pictures from a prompt.",
+    "mail": "Summarizes emails and suggests replies in Mail.",
+    "notification-summaries": "Condenses a stack of notifications into one line.",
+    "messages-summaries": "Summarizes long conversations in Messages.",
+    "safari-summaries": "Summarizes web pages in Safari.",
+    "notes-summaries": "Summarizes recordings and transcripts in Notes.",
+    "inline-predictions": "Suggests the rest of a word or sentence as you type.",
+    "spatial-photos": "Turns flat photos into 3D spatial scenes.",
+    "photos-clean-up": "Removes objects from photos in Photos.",
+    "xcode-completion": "Predicts code as you type in Xcode.",
+  ]
 }

@@ -21,6 +21,8 @@ struct RemoveMacAIApp: App {
         Button("Reload") { model.reload(resetChoices: true) }.keyboardShortcut("r")
       }
       CommandGroup(replacing: .help) {
+        Button("How RemoveMacAI Works") { model.openWelcome() }
+        Divider()
         Link("RemoveMacAI on GitHub", destination: URL(string: "https://github.com/omlahore/RemoveMacAI")!)
         Link("Report a Problem", destination: URL(string: "https://github.com/omlahore/RemoveMacAI/issues/new/choose")!)
       }

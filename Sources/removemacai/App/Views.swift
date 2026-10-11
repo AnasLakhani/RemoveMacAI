@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct ContentView: View {
@@ -14,6 +15,7 @@ struct ContentView: View {
           if model.pendingCount > 0 { PendingBar() }
         }
     }
+    .sheet(isPresented: $model.showingWelcome) { WelcomeSheet() }
     .sheet(isPresented: $model.reviewing) { ReviewSheet() }
     .sheet(isPresented: Binding(get: { model.run != nil }, set: { if !$0 { model.dismissRun() } })) {
       RunSheet()
@@ -45,12 +47,17 @@ struct Sidebar: View {
     @Bindable var model = model
     List(selection: $model.page) {
       row(.overview, badge: 0)
-      Section("Debloat") {
+      Section("Turn Off") {
         row(.intelligence, badge: model.aiPending ? 1 : 0)
-        ForEach(TweakGroup.allCases) { group in
+        ForEach([TweakGroup.privacy, .annoyances, .apps], id: \.self) { group in
           row(.group(group), badge: model.pending(in: group))
         }
         row(.background, badge: 0)
+      }
+      Section("Customize") {
+        ForEach([TweakGroup.finder, .windows, .typing], id: \.self) { group in
+          row(.group(group), badge: model.pending(in: group))
+        }
       }
       Section("Clean Up") {
         row(.storage, badge: 0)
@@ -58,6 +65,16 @@ struct Sidebar: View {
       }
     }
     .listStyle(.sidebar)
+    .safeAreaInset(edge: .bottom, spacing: 0) {
+      Button { model.openWelcome() } label: {
+        Label("How RemoveMacAI Works", systemImage: "questionmark.circle")
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      .buttonStyle(.plain)
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, 18)
+      .padding(.vertical, 12)
+    }
   }
 
   func row(_ page: Page, badge: Int) -> some View {
@@ -75,8 +92,12 @@ struct PendingBar: View {
   var body: some View {
     HStack(spacing: 12) {
       Image(systemName: "circle.fill").font(.system(size: 7)).foregroundStyle(.tint)
-      Text(model.pendingCount == 1 ? "1 change to apply" : "\(model.pendingCount) changes to apply")
-        .font(.callout.weight(.medium))
+      VStack(alignment: .leading, spacing: 1) {
+        Text(model.pendingCount == 1 ? "1 change ready" : "\(model.pendingCount) changes ready")
+          .font(.callout.weight(.medium))
+        Text("Nothing has changed yet. You'll see the full list first.")
+          .font(.caption).foregroundStyle(.secondary)
+      }
       Spacer()
       Button("Discard") { model.discard() }
       Button("Review and Apply…") { model.reviewing = true }
@@ -84,7 +105,7 @@ struct PendingBar: View {
         .keyboardShortcut(.defaultAction)
     }
     .padding(.horizontal, 20)
-    .padding(.vertical, 12)
+    .padding(.vertical, 10)
     .background(.bar)
     .overlay(alignment: .top) { Divider() }
   }
@@ -93,28 +114,35 @@ struct PendingBar: View {
 struct ReviewSheet: View {
   @Environment(AppModel.self) private var model
   @State private var plan: Plan?
+  @State private var showCommands = false
+
+  var changeCount: Int {
+    guard let plan else { return 0 }
+    return plan.apply.count + plan.revert.count + (model.aiPending ? 1 : 0)
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading, spacing: 4) {
-        Text("Review changes").font(.title2.weight(.semibold))
-        Text("Nothing changes until you click Apply. Everything here can be undone later.")
-          .foregroundStyle(.secondary)
+      VStack(alignment: .leading, spacing: 10) {
+        Text(changeCount == 1 ? "Review 1 change" : "Review \(changeCount) changes").font(.title2.weight(.bold))
+        if let plan {
+          HStack(spacing: 8) {
+            if !plan.models.isEmpty, let bytes = model.modelBytes(plan.models), bytes > 0 {
+              chip("Frees about \(Term.size(bytes))", color: .green)
+            }
+            chip("Undo any time", color: .accentColor)
+            if plan.profile.map({ !$0.isEmpty }) ?? false {
+              chip("Asks for your password once", color: .secondary)
+            }
+          }
+        }
       }
-      .padding(20)
+      .padding(.horizontal, 24)
+      .padding(.top, 22)
+      .padding(.bottom, 14)
       Divider()
       if let plan {
         List {
-          if !plan.apply.isEmpty {
-            Section("Apply") {
-              ForEach(plan.apply) { t in ChangeRow(tweak: t, adding: true) }
-            }
-          }
-          if !plan.revert.isEmpty {
-            Section("Undo") {
-              ForEach(plan.revert) { t in ChangeRow(tweak: t, adding: false) }
-            }
-          }
           if model.aiPending || !plan.models.isEmpty {
             Section("Apple Intelligence") {
               if model.aiPending, let kept = model.targetAI {
@@ -126,20 +154,38 @@ struct ReviewSheet: View {
               }
               if !plan.models.isEmpty {
                 let bytes = model.modelBytes(plan.models)
-                Label(
-                  bytes.map { $0 > 0 ? "Delete the models, about \(Term.size($0))" : "Ask macOS to finish removing leftover model files" }
-                    ?? "Delete the models",
-                  systemImage: "trash")
+                Label {
+                  HStack {
+                    Text(bytes.map { $0 > 0 ? "Delete the models, about \(Term.size($0))" : "Ask macOS to finish removing leftover model files" } ?? "Delete the models")
+                    Spacer()
+                    Text("macOS can download them again").font(.caption).foregroundStyle(.secondary)
+                  }
+                } icon: {
+                  Image(systemName: "trash")
+                }
               }
             }
           }
+          if !plan.apply.isEmpty {
+            Section("Turn on or off") {
+              ForEach(plan.apply) { t in ChangeRow(tweak: t, adding: true, showCommands: showCommands) }
+            }
+          }
+          if !plan.revert.isEmpty {
+            Section("Put back") {
+              ForEach(plan.revert) { t in ChangeRow(tweak: t, adding: false, showCommands: showCommands) }
+            }
+          }
           if let profile = plan.profile {
-            Section("Approval") {
-              Label(
-                profile.isEmpty
-                  ? "Remove the RemoveMacAI profile in System Settings."
-                  : "Approve the RemoveMacAI profile in System Settings. macOS asks for this click. The locked settings change once you do.",
-                systemImage: "checkmark.shield")
+            Section("What happens when you click Apply") {
+              if profile.isEmpty {
+                step(1, "Your settings change. This takes a few seconds.")
+                step(2, "System Settings opens so you can remove the RemoveMacAI profile. We show you where.")
+              } else {
+                step(1, "Settings that don't need the profile change right away.")
+                step(2, "System Settings opens and you install the RemoveMacAI profile. We show you where.")
+                if !plan.models.isEmpty { step(3, "The models are deleted and you get a summary.") }
+              }
             }
           }
         }
@@ -149,17 +195,21 @@ struct ReviewSheet: View {
       }
       Divider()
       HStack {
+        Toggle("Show exact settings", isOn: $showCommands)
+          .toggleStyle(.checkbox)
+          .help("Shows the command or profile key behind each change")
         Spacer()
         Button("Cancel", role: .cancel) { model.reviewing = false }
           .keyboardShortcut(.cancelAction)
-        Button("Apply") { model.apply() }
+        Button(changeCount == 1 ? "Apply Change" : "Apply \(changeCount) Changes") { model.apply() }
           .buttonStyle(.borderedProminent)
           .keyboardShortcut(.defaultAction)
           .disabled(plan?.isEmpty ?? true)
       }
+      .controlSize(.large)
       .padding(16)
     }
-    .frame(width: 600, height: 560)
+    .frame(width: 640, height: 600)
     .task {
       let wanted = model.wanted
       let ai = model.targetAI
@@ -167,35 +217,53 @@ struct ReviewSheet: View {
       plan = await Task.detached { Plan.make(wanted: wanted, ai: ai, snapshot: snapshot) }.value
     }
   }
+
+  func chip(_ text: String, color: Color) -> some View {
+    Text(text)
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(color == .secondary ? Color.secondary : color)
+      .padding(.horizontal, 9).padding(.vertical, 4)
+      .background(Capsule().fill(color.opacity(0.13)))
+  }
+
+  func step(_ n: Int, _ text: String) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: 10) {
+      StepBadge(number: n)
+      Text(text).fixedSize(horizontal: false, vertical: true)
+    }
+  }
 }
 
 struct ChangeRow: View {
   let tweak: Tweak
   let adding: Bool
-  @State private var expanded = false
+  var showCommands = false
 
   var body: some View {
-    DisclosureGroup(isExpanded: $expanded) {
-      VStack(alignment: .leading, spacing: 4) {
-        ForEach(tweak.changes.indices, id: \.self) { i in
-          Text(tweak.changes[i].command)
-            .font(.caption.monospaced())
-            .foregroundStyle(.secondary)
-            .textSelection(.enabled)
-        }
-      }
-      .padding(.vertical, 4)
-    } label: {
-      HStack {
+    VStack(alignment: .leading, spacing: 4) {
+      HStack(spacing: 8) {
         Image(systemName: adding ? "plus.circle.fill" : "arrow.uturn.backward.circle.fill")
           .foregroundStyle(adding ? Color.accentColor : .orange)
         Text(tweak.title)
         if tweak.inProfile {
           Image(systemName: "lock.fill").font(.caption).foregroundStyle(.secondary)
-            .help("Locked by the RemoveMacAI profile")
+            .help("Kept in place by the RemoveMacAI profile")
         }
+        Spacer()
+      }
+      if showCommands {
+        VStack(alignment: .leading, spacing: 2) {
+          ForEach(tweak.changes.indices, id: \.self) { i in
+            Text(tweak.changes[i].command)
+              .font(.caption.monospaced())
+              .foregroundStyle(.secondary)
+              .textSelection(.enabled)
+          }
+        }
+        .padding(.leading, 26)
       }
     }
+    .padding(.vertical, 2)
   }
 }
 
@@ -205,72 +273,158 @@ struct RunSheet: View {
   @Environment(AppModel.self) private var model
 
   var body: some View {
-    VStack(spacing: 18) {
+    Group {
       switch model.run {
       case .working(let text)?:
-        ProgressView().controlSize(.large)
-        Text(text).font(.headline)
+        VStack(spacing: 16) {
+          ProgressView().controlSize(.large)
+          Text(text).font(.headline)
+          Text("This takes a few seconds.").foregroundStyle(.secondary)
+        }
+        .padding(40)
+        .frame(width: 420)
       case .approveProfile(let remove)?:
-        Image(systemName: "checkmark.shield").font(.system(size: 44)).foregroundStyle(.tint)
-        Text(remove ? "Remove the profile in System Settings" : "Approve the profile in System Settings")
-          .font(.title3.weight(.semibold))
-        VStack(alignment: .leading, spacing: 8) {
-          if remove {
-            step(1, "In Device Management, select RemoveMacAI.")
-            step(2, "Click the minus button or Remove, then enter your password.")
-          } else {
-            step(1, "Under Downloaded, double-click RemoveMacAI.")
-            step(2, "Click Install, then enter your password.")
-          }
-        }
-        .frame(maxWidth: 360, alignment: .leading)
-        HStack(spacing: 8) {
-          ProgressView().controlSize(.small)
-          Text("Waiting for System Settings…").foregroundStyle(.secondary)
-        }
-        Text("If System Settings says the profile couldn't be installed, click Cancel and report it on GitHub.")
-          .font(.caption).foregroundStyle(.tertiary).multilineTextAlignment(.center).frame(maxWidth: 340)
-        HStack {
-          Button("Cancel") { model.cancel() }
-          Button("Open System Settings") { Commands.openProfileSettings() }
-            .buttonStyle(.borderedProminent)
-        }
+        ApproveProfileView(remove: remove)
       case .finished(let problems, let freed)?:
-        Image(systemName: problems.isEmpty ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-          .font(.system(size: 44))
-          .foregroundStyle(problems.isEmpty ? Color.green : Color.orange)
-        Text(problems.isEmpty ? "Done" : "Finished with problems").font(.title3.weight(.semibold))
-        if let freed, freed > 0 {
-          Text("Deleted \(Term.size(freed)) of models. macOS removes the files on its own schedule, so Storage settings can count them for a while.")
-            .multilineTextAlignment(.center).foregroundStyle(.secondary).frame(maxWidth: 380)
-        }
-        if !problems.isEmpty {
-          ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
-              ForEach(problems, id: \.self) { Text("• " + $0).textSelection(.enabled) }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-          }
-          .frame(maxWidth: 420, maxHeight: 160)
-        }
-        Button("Done") { model.dismissRun() }
-          .buttonStyle(.borderedProminent)
-          .keyboardShortcut(.defaultAction)
+        FinishedView(problems: problems, freed: freed)
       case nil:
         EmptyView()
       }
     }
-    .padding(28)
-    .frame(width: 460)
     .interactiveDismissDisabled()
   }
+}
 
-  func step(_ n: Int, _ text: String) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: 10) {
-      Text("\(n)").font(.callout.weight(.semibold).monospacedDigit())
-        .frame(width: 22, height: 22)
-        .background(Circle().fill(.quaternary))
-      Text(text)
+struct ApproveProfileView: View {
+  @Environment(AppModel.self) private var model
+  let remove: Bool
+  @State private var showContents = false
+  @State private var showTrouble = false
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 18) {
+      VStack(alignment: .leading, spacing: 6) {
+        Text(remove ? "Remove the profile in System Settings" : "One last step in System Settings")
+          .font(.title2.weight(.bold))
+        Text(remove
+          ? "macOS needs you to remove the RemoveMacAI profile yourself. System Settings is open."
+          : "macOS needs you to install the RemoveMacAI profile yourself. System Settings is open.")
+          .foregroundStyle(.secondary)
+      }
+      HStack(alignment: .top, spacing: 22) {
+        SettingsGuide(remove: remove)
+          .frame(width: 360)
+        VStack(alignment: .leading, spacing: 14) {
+          if remove {
+            stepRow(1, "Select RemoveMacAI", "It's under General › Device Management.", active: true)
+            stepRow(2, "Click the minus button, then Remove", "Enter your password if macOS asks.", active: false)
+          } else {
+            stepRow(0, "Settings that don't need the profile are done", nil, active: false, done: true)
+            stepRow(2, "Double-click RemoveMacAI under Downloaded", "It's in General › Device Management.", active: true)
+            stepRow(3, "Click Install, then enter your password", "macOS may call the profile unsigned. That's normal for a free app that isn't from a company.", active: false)
+          }
+          HStack(spacing: 8) {
+            ProgressView().controlSize(.small)
+            Text(remove ? "Waiting for you to remove it…" : "Waiting for you to install it…").foregroundStyle(.secondary)
+          }
+          .padding(.top, 2)
+        }
+      }
+      if !remove {
+        DisclosureGroup("What's in this profile?", isExpanded: $showContents) {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("It turns off the Apple Intelligence features you chose, points the model downloads at a closed address on your own Mac so macOS can't fetch them again, and holds the settings marked with a lock. Nothing else.")
+              .fixedSize(horizontal: false, vertical: true)
+            Button("Show the Profile File") { NSWorkspace.shared.activateFileViewerSelecting([Profile.file]) }
+              .buttonStyle(.link)
+          }
+          .font(.callout)
+          .foregroundStyle(.secondary)
+          .padding(.top, 6)
+        }
+      }
+      DisclosureGroup("Something went wrong", isExpanded: $showTrouble) {
+        Text("If System Settings says the profile couldn't be \(remove ? "removed" : "installed"), click Cancel here. Your Mac stays as it was, and you can report it on GitHub with Help › Report a Problem.")
+          .font(.callout)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.top, 6)
+      }
+      HStack {
+        Button("Cancel") { model.cancel() }
+        Spacer()
+        Button("Show System Settings") { Commands.openProfileSettings() }
+          .buttonStyle(.borderedProminent)
+      }
+      .controlSize(.large)
     }
+    .padding(26)
+    .frame(width: 760)
+    .fixedSize(horizontal: false, vertical: true)
+  }
+
+  func stepRow(_ n: Int, _ title: String, _ detail: String?, active: Bool, done: Bool = false) -> some View {
+    HStack(alignment: .top, spacing: 10) {
+      StepBadge(number: n, done: done, active: active)
+      VStack(alignment: .leading, spacing: 2) {
+        Text(title)
+          .font(.callout.weight(done ? .regular : .semibold))
+          .foregroundStyle(done ? .secondary : .primary)
+          .fixedSize(horizontal: false, vertical: true)
+        if let detail {
+          Text(detail).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+        }
+      }
+    }
+  }
+}
+
+struct FinishedView: View {
+  @Environment(AppModel.self) private var model
+  let problems: [String]
+  let freed: Int64?
+
+  var body: some View {
+    VStack(spacing: 16) {
+      ZStack {
+        Circle().fill((problems.isEmpty ? Color.green : Color.orange).opacity(0.15)).frame(width: 64, height: 64)
+        Image(systemName: problems.isEmpty ? "checkmark" : "exclamationmark.triangle.fill")
+          .font(.system(size: 28, weight: .bold))
+          .foregroundStyle(problems.isEmpty ? Color.green : Color.orange)
+      }
+      .accessibilityHidden(true)
+      Text(problems.isEmpty ? "All done" : "Finished, with a few problems").font(.title2.weight(.bold))
+      if let freed, freed > 0 {
+        Text("Deleted \(Term.size(freed)) of Apple Intelligence models. macOS clears the files on its own schedule, so Storage settings may show the old size for a while.")
+          .multilineTextAlignment(.center).foregroundStyle(.secondary).frame(maxWidth: 420)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      if !problems.isEmpty {
+        ScrollView {
+          VStack(alignment: .leading, spacing: 6) {
+            ForEach(problems, id: \.self) { Text("• " + $0).textSelection(.enabled) }
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: 440, maxHeight: 160)
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(.quaternary.opacity(0.5)))
+      }
+      Text("Changed your mind? Undo in the sidebar puts everything back.")
+        .font(.callout).foregroundStyle(.secondary)
+      HStack(spacing: 10) {
+        Button("See What Changed") {
+          model.dismissRun()
+          model.page = .changes
+        }
+        Button("Done") { model.dismissRun() }
+          .buttonStyle(.borderedProminent)
+          .keyboardShortcut(.defaultAction)
+      }
+      .controlSize(.large)
+      .padding(.top, 4)
+    }
+    .padding(32)
+    .frame(width: 520)
   }
 }
