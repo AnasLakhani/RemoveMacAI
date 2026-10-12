@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
   name: "RemoveMacAI",
-  platforms: [.macOS("26.0")],
+  platforms: [.macOS(.v14)],
   products: [.executable(name: "removemacai", targets: ["removemacai"])],
   targets: [
     .target(name: "UAF", cSettings: [.unsafeFlags(["-fobjc-arc"])]),
