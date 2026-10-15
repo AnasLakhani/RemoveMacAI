@@ -12,6 +12,7 @@ body:
     id: status
     attributes:
       label: Output of removemacai status
+      description: If you installed the app, run `/Applications/RemoveMacAI.app/Contents/MacOS/RemoveMacAI status` in Terminal.
       render: text
     validations:
       required: true
@@ -27,6 +28,7 @@ body:
     attributes:
       label: How you installed it
       options:
+        - Downloaded the app (RemoveMacAI.zip)
         - Homebrew
         - One-line installer
         - Built from source
