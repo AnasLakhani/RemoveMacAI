@@ -38,6 +38,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // A bare binary run from Terminal has no bundle, so it must ask to be a real app.
     NSApp.setActivationPolicy(.regular)
     NSApp.activate(ignoringOtherApps: true)
+    // Started outside Launch Services (Homebrew, Terminal), SwiftUI never opens the window on its own.
+    DispatchQueue.main.async {
+      guard !NSApp.windows.contains(where: { $0.isVisible && $0.canBecomeMain }) else { return }
+      let reopen = NSAppleEventDescriptor(
+        eventClass: AEEventClass(kCoreEventClass), eventID: AEEventID(kAEReopenApplication),
+        targetDescriptor: NSAppleEventDescriptor(processIdentifier: getpid()),
+        returnID: AEReturnID(kAutoGenerateReturnID), transactionID: AETransactionID(kAnyTransactionID))
+      _ = try? reopen.sendEvent(options: [.noReply], timeout: 1)
+    }
     #if DEBUG
       if let dir = ProcessInfo.processInfo.environment["REMOVEMACAI_SNAPSHOTS"] { Snapshots.run(into: dir) }
     #endif
