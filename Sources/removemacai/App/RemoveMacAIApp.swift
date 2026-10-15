@@ -30,6 +30,9 @@ struct RemoveMacAIApp: App {
   }
 }
 
+// Inside an NSObject subclass `version` resolves to NSObject.version(), not this string.
+private let appVersion = version
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     // A bare binary run from Terminal has no bundle, so it must ask to be a real app.
@@ -48,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])
     NSApp.orderFrontStandardAboutPanel(options: [
       .applicationName: "RemoveMacAI",
-      .applicationVersion: version,
+      .applicationVersion: appVersion,
       .version: "",
       .credits: credits,
     ])
