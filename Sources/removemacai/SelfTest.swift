@@ -25,6 +25,21 @@ func selfTest() -> Bool {
   check(Set(Catalog.features.map(\.id)).count == Catalog.features.count, "feature names are unique")
   check(throwsFailure { try Models.remove([]) }, "an empty removal is refused before anything is sent")
   check(throwsFailure { try Models.remove(["com.apple.something.else"]) }, "an unknown set is refused")
+  let lockError = NSError(
+    domain: "com.apple.UnifiedAssetFramework", code: -1,
+    userInfo: [NSLocalizedDescriptionKey: "Could not eliminate as there are current locks", "currentLockUsage": [:]])
+  check(Models.isLocked(lockError), "the asset service's lock error is recognised")
+  check(!Models.isLocked(NSError(domain: "com.apple.UnifiedAssetFramework", code: -1)), "other errors are not taken for a lock")
+  var attempts = 0
+  var waits: [TimeInterval] = []
+  let cleared = Models.retrying({ attempts += 1; return attempts < 3 ? .locked : .done }, delays: [5, 15]) { waits.append($0) }
+  check(cleared == .done && attempts == 3 && waits == [5, 15], "a locked set is asked again after each wait until it goes")
+  attempts = 0
+  let stuck = Models.retrying({ attempts += 1; return .locked }, delays: [5, 15]) { _ in }
+  check(stuck == .locked && attempts == 3, "a set that stays locked is tried three times, then reported")
+  attempts = 0
+  _ = Models.retrying({ attempts += 1; return .failed("x") }, delays: [5, 15]) { _ in }
+  check(attempts == 1, "other failures are not retried")
   let all = Catalog.modelSets.map(\.name)
   let types = Dictionary(uniqueKeysWithValues: Catalog.modelSets.map { ($0.name, $0.assetType) })
   let split = try? Models.matching(all) { $0 == Catalog.spatialModels ? "com.apple.something.else" : types[$0] }

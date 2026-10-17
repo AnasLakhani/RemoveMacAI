@@ -126,24 +126,57 @@ enum Models {
   /// catalog, and leaves alone any set whose asset type no longer matches it.
   /// Returns the sets that stayed, with the reason.
   @discardableResult
-  static func remove(_ sets: [String], timeout: TimeInterval = 120) throws -> [(String, String)] {
+  static func remove(_ sets: [String], timeout: TimeInterval = 120, retryDelays: [TimeInterval] = [5, 15]) throws
+    -> [(String, String)]
+  {
     guard !sets.isEmpty else { throw Failure("no model sets selected") }
     var (matched, failed) = try matching(sets)
     for name in matched where present(name) {
-      let done = DispatchSemaphore(value: 0)
-      var failure: NSError?
-      UAFResetAssetSets([name]) { error in
-        failure = error as NSError?
-        done.signal()
-      }
-      if done.wait(timeout: .now() + timeout) != .success {
-        failed.append((name, "no answer in \(Int(timeout)) seconds"))
-      } else if let failure {
-        let detail = failure.userInfo.map { "\($0.key): \($0.value)" }.joined(separator: "; ")
-        failed.append((name, "\(failure.domain) \(failure.code) \(detail)"))
+      switch retrying({ reset(name, timeout: timeout) }, delays: retryDelays) {
+      case .done: break
+      case .locked: failed.append((name, lockedReason))
+      case .noAnswer: failed.append((name, "no answer in \(Int(timeout)) seconds"))
+      case .failed(let reason): failed.append((name, reason))
       }
     }
     return failed
+  }
+
+  /// Asks again after each delay while the set is locked.
+  static func retrying(
+    _ attempt: () -> ResetOutcome, delays: [TimeInterval], sleep: (TimeInterval) -> Void = Thread.sleep
+  ) -> ResetOutcome {
+    var outcome = attempt()
+    for delay in delays where outcome == .locked {
+      sleep(delay)
+      outcome = attempt()
+    }
+    return outcome
+  }
+
+  static let lockedReason =
+    "macOS is still using these models, so it wouldn't delete them yet. Restart your Mac, then run RemoveMacAI again to delete them."
+
+  enum ResetOutcome: Equatable {
+    case done, locked, noAnswer
+    case failed(String)
+  }
+
+  static func reset(_ name: String, timeout: TimeInterval) -> ResetOutcome {
+    let done = DispatchSemaphore(value: 0)
+    var failure: NSError?
+    UAFResetAssetSets([name]) { error in
+      failure = error as NSError?
+      done.signal()
+    }
+    if done.wait(timeout: .now() + timeout) != .success { return .noAnswer }
+    guard let failure else { return .done }
+    return isLocked(failure) ? .locked : .failed("\(failure.localizedDescription) (\(failure.domain) \(failure.code))")
+  }
+
+  /// The asset service refuses while something on the Mac holds the set.
+  static func isLocked(_ error: NSError) -> Bool {
+    error.userInfo["currentLockUsage"] != nil || error.localizedDescription.contains("current locks")
   }
 }
 
