@@ -195,7 +195,7 @@ If RemoveMacAI is useful to you, you can [sponsor it on GitHub](https://github.c
 
 ## Author
 
-I'm [Om Lahore](https://github.com/omlahore) and I'm open to new roles. You can reach me on [LinkedIn](https://linkedin.com/in/om-lahorey) or at omlahorey@gmail.com.
+I'm [Om Lahore](https://github.com/omlahore) and I'm available for work, both full-time roles and freelance projects like macOS apps, Claude Code setup for teams, and AWS and CI/CD. You can reach me at omlahorey@gmail.com or on [LinkedIn](https://linkedin.com/in/om-lahorey).
 
 ## License
 
