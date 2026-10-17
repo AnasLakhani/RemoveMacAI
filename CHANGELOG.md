@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+
+- When macOS is still using a model set, removal waits and tries again twice before giving up. If it still can't, it says so in plain words and tells you to restart and run RemoveMacAI again, instead of printing the raw lock error (#56, #38).
+- Other removal errors show Apple's message instead of the whole error dump.
+
 ## 1.1.1
 
 - RemoveMacAI > About RemoveMacAI opens the About window again (#49).
