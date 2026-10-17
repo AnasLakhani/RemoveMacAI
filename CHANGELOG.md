@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.3
+
+- After a run finishes with no problems, the app and the command line mention that you can sponsor RemoveMacAI on GitHub. It shows only then, once per run.
+
 ## 1.1.2
 
 - When macOS is still using a model set, removal waits and tries again twice before giving up. If it still can't, it says so in plain words and tells you to restart and run RemoveMacAI again, instead of printing the raw lock error (#56, #38).
