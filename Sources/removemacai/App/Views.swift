@@ -415,6 +415,14 @@ struct FinishedView: View {
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 10).fill(.quaternary.opacity(0.5)))
       }
+      if problems.isEmpty {
+        VStack(spacing: 6) {
+          Text("I make RemoveMacAI by myself in my spare time. If it was useful to you, you can sponsor it on GitHub.")
+            .multilineTextAlignment(.center).foregroundStyle(.secondary).frame(maxWidth: 420)
+            .fixedSize(horizontal: false, vertical: true)
+          Link("Sponsor on GitHub", destination: URL(string: "https://github.com/sponsors/omlahore")!)
+        }
+      }
       Text("Changed your mind? Undo in the sidebar puts everything back.")
         .font(.callout).foregroundStyle(.secondary)
       HStack(spacing: 10) {
