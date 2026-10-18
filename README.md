@@ -162,7 +162,9 @@ Apple silicon.
 | macOS | Status |
 |---|---|
 | 27 | Supported, tested on 27.0. On 27.0.1, use 0.2.3 or later. |
-| 26 and earlier | Not supported |
+| 26 | Runs since 1.1.0. Most of the testing has been on 27. |
+| 15.1 and later (Sequoia) | In testing, use [1.2.0-beta.1](https://github.com/omlahore/RemoveMacAI/releases/tag/v1.2.0-beta.1). Spatial Photos isn't on 15, so it's left out there. |
+| 15.0 and earlier | Not supported, Apple Intelligence starts in 15.1 |
 
 ## Uninstall
 
