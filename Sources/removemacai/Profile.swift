@@ -59,6 +59,7 @@ enum Profile {
     // what it was made with.
     var marker: [String: Any] = ["installed": true, "ai": contents.ai != nil, "tweaks": contents.tweaks.sorted().joined(separator: ",")]
     marker["kept"] = (contents.ai ?? []).sorted().joined(separator: ",")
+    marker["features"] = Catalog.availableFeatures.map(\.id).sorted().joined(separator: ",")
     forced[identifier] = marker
     let preferences = forced.keys.sorted().map { domain -> [String: Any] in
       var p = payload(
@@ -110,8 +111,17 @@ enum Profile {
     var ai = false
     var kept: Set<String> = []
     var tweaks: Set<String> = []
+    /// The features the profile was made for. Older profiles don't record them.
+    var features: Set<String>? = nil
 
-    var contents: Contents? { on ? Contents(ai: ai ? kept : nil, tweaks: tweaks) : nil }
+    /// Made on an older macOS that lacked some of this one's features, so it
+    /// leaves them on and has to be installed again.
+    var stale: Bool {
+      guard ai, let features else { return false }
+      return !Set(Catalog.availableFeatures.map(\.id)).isSubset(of: features)
+    }
+
+    var contents: Contents? { on ? Contents(ai: ai && !stale ? kept : nil, tweaks: tweaks) : nil }
   }
 
   /// Whether our profile is in force, and what it holds.
@@ -124,7 +134,8 @@ enum Profile {
       return Set(s.split(separator: ",").map(String.init))
     }
     let ai = CFPreferencesCopyAppValue("ai" as CFString, domain) as? Bool ?? true
-    return Installed(on: true, ai: ai, kept: list("kept"), tweaks: list("tweaks"))
+    let features = CFPreferencesCopyAppValue("features" as CFString, domain) == nil ? nil : list("features")
+    return Installed(on: true, ai: ai, kept: list("kept"), tweaks: list("tweaks"), features: features)
   }
 
   /// Writes the profile and opens it, so System Settings shows it for approval.

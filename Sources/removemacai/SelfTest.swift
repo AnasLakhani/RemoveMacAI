@@ -175,6 +175,17 @@ func selfTest() -> Bool {
     let uuids = payloads.compactMap { $0["PayloadUUID"] as? String } + [plist["PayloadUUID"] as! String]
     check(Set(uuids).count == uuids.count && Profile.uuid("a") == Profile.uuid("a"),
       "payload UUIDs are unique and stable")
+    let marker = payloads.first { ($0["PayloadIdentifier"] as? String)?.hasSuffix(".\(Profile.identifier)") == true }!
+    let recorded = ((((marker["PayloadContent"] as! [String: Any])[Profile.identifier] as! [String: Any])["Forced"]
+      as! [[String: Any]])[0]["mcx_preference_settings"] as! [String: Any])["features"] as? String
+    check(recorded == Catalog.availableFeatures.map(\.id).sorted().joined(separator: ","),
+      "the profile records the features it was made for")
+    let all = Set(Catalog.availableFeatures.map(\.id))
+    check(Profile.Installed(on: true, ai: true, features: all.subtracting(["siri"])).stale
+      && !Profile.Installed(on: true, ai: true, features: all).stale
+      && !Profile.Installed(on: true, ai: true).stale
+      && Profile.Installed(on: true, ai: true, features: []).contents?.ai == nil,
+      "a profile made before macOS gained features is installed again")
 
     let keep = try PropertyListSerialization.propertyList(from: Profile.data(Profile.Contents(ai: ["writing-tools"], tweaks: [])), format: nil)
       as! [String: Any]
