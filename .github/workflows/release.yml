@@ -40,4 +40,5 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           awk -v v="## $version" '$0 == v {on=1; next} /^## / {on=0} on' CHANGELOG.md > notes.md
-          gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --notes-file notes.md
+          pre=""; [[ "$GITHUB_REF_NAME" == *-* ]] && pre="--prerelease"
+          gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --notes-file notes.md $pre
