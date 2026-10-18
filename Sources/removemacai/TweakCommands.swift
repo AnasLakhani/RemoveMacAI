@@ -58,6 +58,10 @@ enum TweakCommands {
   }
 
   static func undo(ids: [String], dryRun: Bool, yes: Bool) -> Bool {
+    guard !ids.isEmpty else {
+      Term.fail("name the tweaks to undo")
+    }
+
     let s = Snapshot()
     var wanted = s.appliedTweaks
     for id in ids {
