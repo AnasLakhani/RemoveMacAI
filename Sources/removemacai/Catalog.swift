@@ -19,11 +19,11 @@ struct Feature {
   /// The first macOS version (major, minor) that has the feature. Apple ships
   /// Apple Intelligence in waves, so a feature the running macOS does not have
   /// is hidden instead of being switched off with keys or model sets the
-  /// system ignores. Each value is the newest version any of the feature's
-  /// keys needs, from Apple's device-management restrictions reference
-  /// (Writing Tools and Siri in 15.1, ChatGPT in 15.2, Notes summaries in
-  /// 15.3, Mail smart replies and Safari summaries in 15.4) or, for Spatial
-  /// Photos, from the asset set itself, which macOS 15 does not describe.
+  /// system ignores. Each value comes from Apple's device-management
+  /// restrictions reference (Writing Tools, Siri and Mail summaries in 15.1,
+  /// ChatGPT in 15.2, Notes summaries in 15.3, Safari summaries in 15.4) or,
+  /// for Spatial Photos, from the asset set itself, which macOS 15 does not
+  /// describe. Mail's smart-replies key is ignored before 15.4.
   var since: (Int, Int) = (15, 1)
 
   var supported: Bool {
@@ -85,7 +85,7 @@ enum Catalog {
         ForcedPreference(
           domain: "group.com.apple.mail", key: "DisableAutomaticMessageSummarization", off: true),
         ForcedPreference(domain: "group.com.apple.mail", key: "PersonalizedSmartReplies", off: false),
-      ], modelSets: [foundationModels], since: (15, 4)),
+      ], modelSets: [foundationModels]),
     Feature(
       id: "notification-summaries", title: "Notification summaries", restrictions: [],
       preferences: [
