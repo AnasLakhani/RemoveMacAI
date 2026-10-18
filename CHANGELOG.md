@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0-beta.1
+
+A beta for macOS 15 (Sequoia). The one-line installer and Homebrew stay on 1.1.4 until it's out of beta.
+
+- RemoveMacAI runs on macOS 15.1 and later, not just 26 and 27 (#45). Apple Intelligence features that a macOS version doesn't have are left out, so Sequoia doesn't list Spatial Photos. Contributed by mojila in #47.
+- After a macOS upgrade that adds Apple Intelligence features the profile doesn't cover yet, RemoveMacAI asks you to approve the profile again the next time you run it, instead of saying everything is already off.
+- If something goes wrong on Sequoia, open an issue with the output of `removemacai status` and `sw_vers`.
+
 ## 1.1.4
 
 - `removemacai undo` with no tweak names now asks you to name them, the way `apply` does, instead of saying nothing needs changing (#57). Contributed by cosmicsid004 in #64.
