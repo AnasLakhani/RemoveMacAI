@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.4
+
+- `removemacai undo` with no tweak names now asks you to name them, the way `apply` does, instead of saying nothing needs changing (#57). Contributed by cosmicsid004 in #64.
+- Commands no longer accept words and options they don't use, and `--keep` with nothing after it says it needs feature names (#58). Contributed by sean0407 in #62.
+- Remove unused Apple apps from the Dock now also takes Image Playground and Journal off the Dock (#63).
+
 ## 1.1.3
 
 - After a run finishes with no problems, the app and the command line mention that you can sponsor RemoveMacAI on GitHub. It shows only then, once per run.
