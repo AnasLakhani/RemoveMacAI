@@ -55,19 +55,18 @@ func presetOption() -> Preset? {
   return preset
 }
 
+// Apple Intelligence starts at macOS 15.1.
+let supportedOS = ProcessInfo.processInfo.isOperatingSystemAtLeast(.init(majorVersion: 15, minorVersion: 1, patchVersion: 0))
+
 // Opened from Finder: the app. With arguments, or from a bare binary: the CLI.
 if args.isEmpty && Bundle.main.bundleURL.pathExtension == "app" || args.first == "app" {
-  guard ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 15 else {
-    Term.fail("RemoveMacAI needs macOS 15 or newer")
-  }
+  guard supportedOS else { Term.fail("RemoveMacAI needs macOS 15.1 or newer") }
   Shell.inApp = true
   RemoveMacAIApp.main()
   exit(0)
 }
 
-guard args.first == "selftest" || ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 15 else {
-  Term.fail("RemoveMacAI needs macOS 15 or newer")
-}
+guard args.first == "selftest" || supportedOS else { Term.fail("RemoveMacAI needs macOS 15.1 or newer") }
 
 switch args.first {
 case "status":
