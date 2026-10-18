@@ -229,11 +229,15 @@ enum Tweaks {
       changes: [.restriction("allowBookstore")], since: (15, 0)),
     Tweak(
       id: "dock-apple-apps", group: .apps, title: "Remove unused Apple apps from the Dock",
-      detail: "Removes News, TV, Music, Podcasts, Books, Freeform, Maps and Stocks from the Dock. The apps stay installed.",
-      changes: [.dockRemove([
-        "com.apple.news", "com.apple.TV", "com.apple.Music", "com.apple.podcasts", "com.apple.iBooksX",
-        "com.apple.freeform", "com.apple.Maps", "com.apple.stocks",
-      ])], restart: ["Dock"]),
+      detail: "Removes News, TV, Music, Podcasts, Books, Freeform, Image Playground, Journal, Maps and Stocks from the Dock. The apps stay installed.",
+      changes: [
+        .dockRemove([
+          "com.apple.news", "com.apple.TV", "com.apple.Music", "com.apple.podcasts", "com.apple.iBooksX",
+          "com.apple.freeform", "com.apple.Maps", "com.apple.stocks",
+        ]),
+        // A change of its own keeps the journal key of the list above, so earlier undos still work.
+        .dockRemove(["com.apple.GenerativePlaygroundApp", "com.apple.journal"]),
+      ], restart: ["Dock"]),
 
     // MARK: Finder
     Tweak(
