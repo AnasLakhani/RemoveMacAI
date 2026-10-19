@@ -103,6 +103,8 @@ Two presets get you started. **Recommended** turns Apple Intelligence, analytics
 
 `apply`, `undo`, `background` and `clean` show the change first and ask. `--dry-run` shows it and stops, and `--yes` skips the question.
 
+Tab completion for zsh, bash and fish is in [completions](completions). Each script says where it goes.
+
 <p align="center">
   <img src="docs/terminal.gif" alt="RemoveMacAI turning off Apple Intelligence in Terminal" width="840">
 </p>
