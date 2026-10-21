@@ -1,0 +1,64 @@
+#compdef removemacai
+# zsh completion for removemacai. Put it in a folder on $fpath.
+
+_removemacai_features() {
+  local -a features
+  features=(${(f)"$(removemacai features 2>/dev/null | awk '{ n = $1; sub(/^[^ ]+ +/, ""); print n "[" $0 "]" }')"})
+  _values -s , feature $features
+}
+
+_removemacai_tweaks() {
+  local -a tweaks
+  tweaks=(${(f)"$(removemacai tweaks --json 2>/dev/null | sed -n 's/.*"id" : "\(.*\)".*/\1/p')"})
+  _wanted tweaks expl tweak compadd -a tweaks
+}
+
+# Only these can go in an exported profile; the rest are per-user settings.
+_removemacai_profile_tweaks() {
+  local -a tweaks
+  tweaks=(${(f)"$(removemacai tweaks --json 2>/dev/null |
+    awk '/"id" :/ { gsub(/[",]/, "", $3); id = $3 } /"profile" : true/ { print id }')"})
+  _wanted tweaks expl tweak compadd -a tweaks
+}
+
+_removemacai() {
+  local -a commands
+  commands=(
+    'status:show what is on and how much space the models take'
+    'off:turn Apple Intelligence off'
+    'on:turn Apple Intelligence back on, keep the other tweaks'
+    'features:list the feature names'
+    'tweaks:list every tweak and whether it is applied'
+    'apply:apply tweaks'
+    'undo:undo tweaks'
+    "background:other apps' background items"
+    'clean:show space to get back, move some to the Trash'
+    'export:write the profile for an MDM'
+    'revert:undo everything RemoveMacAI changed'
+    'app:open the RemoveMacAI app'
+  )
+  if (( CURRENT == 2 )); then
+    _describe command commands
+    return
+  fi
+  shift words
+  (( CURRENT-- ))
+  local dry='--dry-run[show what would change, change nothing]' yes='--yes[do not ask]'
+  local keep='--keep[leave these features on]:feature:_removemacai_features'
+  local preset='--preset[apply a preset, Apple Intelligence off included]:preset:(recommended privacy)'
+  case $words[1] in
+    off) _arguments $keep $dry $yes ;;
+    tweaks) _arguments '--json[print JSON for scripts]' ;;
+    apply) _arguments $preset $dry $yes '*:tweak:_removemacai_tweaks' ;;
+    undo) _arguments $dry $yes '*:tweak:_removemacai_tweaks' ;;
+    background) _arguments $yes '1:action:(off on)' '*: :_guard "^-*" label' ;;
+    clean)
+      _arguments $dry $yes \
+        '*:item:(aerials installers ios-firmware derived-data device-support simulators caches snapshots)' ;;
+    export)
+      _arguments $preset $keep '--no-ai[leave Apple Intelligence out]' \
+        '1:file:_files -g "*.mobileconfig"' '*:tweak:_removemacai_profile_tweaks' ;;
+  esac
+}
+
+_removemacai "$@"
