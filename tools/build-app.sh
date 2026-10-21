@@ -17,6 +17,12 @@ mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$bin" "$app/Contents/MacOS/RemoveMacAI"
 cp LICENSE THIRD-PARTY-NOTICES.md "$app/Contents/Resources/"
 
+# Translations: Localization/<language>.lproj. English is the source language, so
+# it needs no folder; the keys are the English strings in the code.
+cp -R Localization/*.lproj "$app/Contents/Resources/"
+languages="<string>en</string>"
+for dir in Localization/*.lproj; do languages+="<string>$(basename "$dir" .lproj)</string>"; done
+
 mkdir -p .build/AppIcon.iconset
 for size in 16 32 128 256 512; do
   sips -z $size $size tools/AppIcon.png --out ".build/AppIcon.iconset/icon_${size}x${size}.png" >/dev/null
@@ -30,6 +36,7 @@ cat > "$app/Contents/Info.plist" <<PLIST
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleLocalizations</key><array>$languages</array>
   <key>CFBundleExecutable</key><string>RemoveMacAI</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleIdentifier</key><string>io.github.omlahore.removemacai.app</string>
