@@ -15,7 +15,7 @@ folder = f"Localization/{lang}.lproj"
 def strings_keys(path):
     text = open(path, encoding="utf-8").read()
     keys = set()
-    for m in re.finditer(r'^"((?:[^"\\]|\\.)*)"\s*=', text, re.M):
+    for m in re.finditer(r'^\s*"((?:[^"\\]|\\.)*)"\s*=', text, re.M):
         keys.add(re.sub(r'\\(.)', lambda e: {"n": "\n", "t": "\t"}.get(e.group(1), e.group(1)), m.group(1)))
     return keys
 
@@ -61,7 +61,7 @@ def literals(code):
 
 # In the shared engine files only these fields reach the window.
 DATA_FIELD = re.compile(r'(?:title|detail|caveat|prompt):\s*(?:String\(localized:\s*)?(?:[^"\n]*\?\s*)?$|case \.\w+: return $|isUpdater \? nil : $')
-NOT_UI = re.compile(r'^((?:%lld|%@)+$|https?:|/|~|com\.|io\.|group\.|[a-z0-9.\-_:]+$|[A-Z_]+$|[a-z][A-Za-z]*$|[A-Z][a-z]*[A-Z]\w*$|• $|%[@d]|.*\.(app|plist)$)')
+NOT_UI = re.compile(r'^((?:%lld|%@)+$|https?:|/|~|com\.|io\.|group\.|[a-z0-9.\-_:]+$|[A-Z_]+$|[a-z][A-Za-z]*$|[A-Z][a-z]*[A-Z]\w*$|• $|.*\.(app|plist)$)')
 ENGINE = ["Tweaks.swift", "Catalog.swift", "Storage.swift", "BackgroundItems.swift"]
 # Words people know by their English name, used alone.
 NAMES = {"Finder", "Genmoji", "Image Playground", "Wi-Fi", "Bluetooth", "RemoveMacAI", "Apple Intelligence"}
