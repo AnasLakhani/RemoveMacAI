@@ -56,7 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   static func showAbout() {
     let credits = NSMutableAttributedString(
-      string: "Debloats macOS and can undo every change.\n\nThe Apple Intelligence part builds on pared by 4evy, which first mapped Apple's asset service and model sets.",
+      string: String(localized: "Debloats macOS and can undo every change.\n\nThe Apple Intelligence part builds on pared by 4evy, which first mapped Apple's asset service and model sets."),
       attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])
     NSApp.orderFrontStandardAboutPanel(options: [
       .applicationName: "RemoveMacAI",

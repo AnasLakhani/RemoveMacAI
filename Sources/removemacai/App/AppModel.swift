@@ -213,7 +213,7 @@ final class AppModel {
       if let target = plan.profile {
         await MainActor.run { self.run = .approveProfile(remove: target.isEmpty) }
         if !target.isEmpty {
-          do { try Profile.present(target) } catch { problems.append("Could not write the profile: \(error)") }
+          do { try Profile.present(target) } catch { problems.append(String(localized: "Could not write the profile: \(String(describing: error))")) }
           try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
         await MainActor.run { Commands.openProfileSettings() }
@@ -221,8 +221,8 @@ final class AppModel {
         if !approved {
           problems.append(
             target.isEmpty
-              ? "The profile is still installed. Remove RemoveMacAI in System Settings > General > Device Management."
-              : "The profile wasn't approved, so the locked settings and Apple Intelligence didn't change.")
+              ? String(localized: "The profile is still installed. Remove RemoveMacAI in System Settings > General > Device Management.")
+              : String(localized: "The profile wasn't approved, so the locked settings and Apple Intelligence didn't change."))
         }
       }
       // Models only go once the profile blocks their download.
@@ -241,19 +241,19 @@ final class AppModel {
   }
 
   nonisolated static func deleteModels(_ sets: [String]) -> (problems: [String], freed: Int64?) {
-    guard Models.available() else { return (["Apple's asset service didn't answer, so the models stay for now."], nil) }
+    guard Models.available() else { return ([String(localized: "Apple's asset service didn't answer, so the models stay for now.")], nil) }
     var problems: [String] = []
     var removing = sets
     do {
       let split = try Models.matching(sets)
       removing = split.matched
-      problems += split.skipped.map { "\(Catalog.modelSet($0.0)?.title ?? $0.0) stayed: \($0.1)" }
+      problems += split.skipped.map { String(localized: "\(L(Catalog.modelSet($0.0)?.title ?? $0.0)) stayed: \(L($0.1))") }
     } catch { return (["\(error)"], nil) }
     let before = Models.total(removing)
     do {
       let result = try Commands.removeModels(removing, before: before)
-      problems += result.failures.map { "\(Catalog.modelSet($0.0)?.title ?? $0.0): \($0.1)" }
-      if !result.verified { problems.append("Removal couldn't be confirmed yet. Check again in a minute.") }
+      problems += result.failures.map { "\(L(Catalog.modelSet($0.0)?.title ?? $0.0)): \(L($0.1))" }
+      if !result.verified { problems.append(String(localized: "Removal couldn't be confirmed yet. Check again in a minute.")) }
       return (problems, result.deletedBytes)
     } catch {
       return (problems + ["\(error)"], nil)
@@ -303,7 +303,7 @@ final class AppModel {
           Commands.openProfileSettings()
         }
         if !(await self.waitFor { !Profile.installed().on }) {
-          problems.append("The profile is still installed. Remove RemoveMacAI in System Settings > General > Device Management.")
+          problems.append(String(localized: "The profile is still installed. Remove RemoveMacAI in System Settings > General > Device Management."))
         }
       }
       let outcome = RunState.finished(problems: problems, freed: nil)
@@ -357,14 +357,16 @@ final class AppModel {
       let trashedTotal = chosen.filter { !$0.permanent }.reduce(Int64(0)) { $0 + $1.bytes }
       let left = items.filter { trashedIDs.contains($0.id) }.reduce(Int64(0)) { $0 + $1.bytes }
       var parts: [String] = []
-      if !trashedIDs.isEmpty { parts.append("Moved \(Term.size(max(0, trashedTotal - left))) to the Trash. Empty the Trash to free the space.") }
+      if !trashedIDs.isEmpty { parts.append(String(localized: "Moved \(UISize.of(max(0, trashedTotal - left))) to the Trash. Empty the Trash to free the space.")) }
       let permanent = chosen.filter(\.permanent)
       if !permanent.isEmpty && result.problems.isEmpty {
-        parts.append("Deleted \(permanent.map(\.title).joined(separator: " and ")).")
+        parts.append(String(localized: "Deleted \(permanent.map { L($0.title) }.joined(separator: L(" and ")))."))
       }
       var message = parts.joined(separator: " ")
       if result.protected > 0 {
-        message += " \(result.protected) item\(result.protected == 1 ? "" : "s") macOS protects stayed where \(result.protected == 1 ? "it was" : "they were")."
+        message += " " + (result.protected == 1
+          ? String(localized: "1 item macOS protects stayed where it was.")
+          : String(localized: "\(result.protected) items macOS protects stayed where they were."))
       }
       if !result.problems.isEmpty { message += "\n" + result.problems.joined(separator: "\n") }
       let finalMessage = message

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld changes ready</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Готово %lld изменения</string>
+			<key>many</key>
+			<string>Готово %lld изменений</string>
+			<key>one</key>
+			<string>Готово %lld изменение</string>
+			<key>other</key>
+			<string>Готово %lld изменения</string>
+		</dict>
+	</dict>
+	<key>%lld features are kept on. Everything else is off and its models are gone.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld функции оставлены включёнными. Всё остальное выключено, модели удалены.</string>
+			<key>many</key>
+			<string>%lld функций оставлено включёнными. Всё остальное выключено, модели удалены.</string>
+			<key>one</key>
+			<string>%lld функция оставлена включённой. Всё остальное выключено, модели удалены.</string>
+			<key>other</key>
+			<string>%lld функции оставлены включёнными. Всё остальное выключено, модели удалены.</string>
+		</dict>
+	</dict>
+	<key>%lld items macOS protects stayed where they were.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld объекта, защищённых macOS, остались на месте.</string>
+			<key>many</key>
+			<string>%lld объектов, защищённых macOS, остались на месте.</string>
+			<key>one</key>
+			<string>%lld объект, защищённый macOS, остался на месте.</string>
+			<key>other</key>
+			<string>%lld объекта, защищённых macOS, остались на месте.</string>
+		</dict>
+	</dict>
+	<key>%lld settings</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld настройки</string>
+			<key>many</key>
+			<string>%lld настроек</string>
+			<key>one</key>
+			<string>%lld настройка</string>
+			<key>other</key>
+			<string>%lld настройки</string>
+		</dict>
+	</dict>
+	<key>%lld settings and Apple Intelligence off</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld настройки и выключение Apple Intelligence</string>
+			<key>many</key>
+			<string>%lld настроек и выключение Apple Intelligence</string>
+			<key>one</key>
+			<string>%lld настройка и выключение Apple Intelligence</string>
+			<key>other</key>
+			<string>%lld настройки и выключение Apple Intelligence</string>
+		</dict>
+	</dict>
+	<key>%lld snapshots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld снимка</string>
+			<key>many</key>
+			<string>%lld снимков</string>
+			<key>one</key>
+			<string>%lld снимок</string>
+			<key>other</key>
+			<string>%lld снимка</string>
+		</dict>
+	</dict>
+	<key>Turn off everything except %lld kept features</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Выключить всё, кроме %lld оставленных функций</string>
+			<key>many</key>
+			<string>Выключить всё, кроме %lld оставленных функций</string>
+			<key>one</key>
+			<string>Выключить всё, кроме %lld оставленной функции</string>
+			<key>other</key>
+			<string>Выключить всё, кроме %lld оставленных функций</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -117,7 +117,7 @@ enum BackgroundItems {
       if !disabled { journal.entries[item.id] = nil }
     }
     if !adminCommands.isEmpty {
-      let result = Shell.admin(adminCommands, prompt: "RemoveMacAI needs your password to change background items for all users.")
+      let result = Shell.admin(adminCommands, prompt: String(localized: "RemoveMacAI needs your password to change background items for all users."))
       if !result.ok { problems.append(Shell.adminError(result)) }
     }
     Engine.save(journal)

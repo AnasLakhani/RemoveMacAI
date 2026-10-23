@@ -134,30 +134,30 @@ struct WelcomeSheet: View {
 
   func title(_ option: Start) -> String {
     switch option {
-    case .recommended: return Preset.recommended.title
-    case .privacy: return Preset.privacy.title
-    case .own: return "I'll choose myself"
+    case .recommended: return L(Preset.recommended.title)
+    case .privacy: return L(Preset.privacy.title)
+    case .own: return String(localized: "I'll choose myself")
     }
   }
 
   func summary(_ option: Start) -> String {
     switch option {
-    case .recommended: return Preset.recommended.summary
-    case .privacy: return Preset.privacy.summary
-    case .own: return "Start with nothing selected and pick from the sidebar."
+    case .recommended: return L(Preset.recommended.summary)
+    case .privacy: return L(Preset.privacy.summary)
+    case .own: return String(localized: "Start with nothing selected and pick from the sidebar.")
     }
   }
 
   func detail(_ option: Start) -> String {
-    let models = model.modelTotal > 0 ? " and \(Term.size(model.modelTotal)) of models" : ""
+    let models = model.modelTotal > 0 ? String(localized: " and \(UISize.of(model.modelTotal)) of models") : ""
     switch option {
-    case .recommended: return "\(Tweaks.preset(.recommended).count) settings\(models)"
-    case .privacy: return "\(Tweaks.preset(.privacy).count) settings\(models)"
-    case .own: return "Nothing is selected for you"
+    case .recommended: return String(localized: "\(Tweaks.preset(.recommended).count) settings") + models
+    case .privacy: return String(localized: "\(Tweaks.preset(.privacy).count) settings") + models
+    case .own: return String(localized: "Nothing is selected for you")
     }
   }
 
-  func stepCard(_ n: Int, _ title: String, _ text: String, highlight: Bool = false) -> some View {
+  func stepCard(_ n: Int, _ title: LocalizedStringKey, _ text: LocalizedStringKey, highlight: Bool = false) -> some View {
     VStack(alignment: .leading, spacing: 6) {
       StepBadge(number: n)
       Text(title).font(.headline)
