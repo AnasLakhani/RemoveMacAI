@@ -70,6 +70,8 @@ guard args.first == "selftest" || supportedOS else { Term.fail("RemoveMacAI need
 
 switch args.first {
 case "status":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.status()
 case "off", nil:
   if !args.isEmpty { args.removeFirst() }
@@ -79,8 +81,12 @@ case "off", nil:
   if let extra = args.first { Term.fail("unknown option \(extra)") }
   exit(Commands.off(keep: keep, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "revert":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.revert()
 case "on":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.on()
 case "features":
   args.removeFirst()
@@ -91,16 +97,19 @@ case "tweaks":
   let json = flag("--json")
   if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   TweakCommands.list(json: json)
-case "apply", "undo":
-  let command = args.removeFirst()
+case "apply":
+  args.removeFirst()
   let preset = presetOption()
   let dryRun = flag("--dry-run")
   let yes = flag("--yes") || flag("-y")
   if let bad = args.first(where: { $0.hasPrefix("-") }) { Term.fail("unknown option \(bad)") }
-  let ok = command == "apply"
-    ? TweakCommands.apply(ids: args, preset: preset, dryRun: dryRun, yes: yes)
-    : TweakCommands.undo(ids: args, dryRun: dryRun, yes: yes)
-  exit(ok ? 0 : 1)
+  exit(TweakCommands.apply(ids: args, preset: preset, dryRun: dryRun, yes: yes) ? 0 : 1)
+case "undo":
+  args.removeFirst()
+  let dryRun = flag("--dry-run")
+  let yes = flag("--yes") || flag("-y")
+  if let bad = args.first(where: { $0.hasPrefix("-") }) { Term.fail("unknown option \(bad)") }
+  exit(TweakCommands.undo(ids: args, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "background":
   args.removeFirst()
   let yes = flag("--yes") || flag("-y")
