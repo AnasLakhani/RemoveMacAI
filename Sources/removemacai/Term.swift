@@ -16,7 +16,8 @@ enum Term {
 
   static func size(_ bytes: Int64) -> String {
     if bytes <= 0 { return "0 MB" }
-    if bytes >= 1_000_000_000 { return String(format: "%.1f GB", Double(bytes) / 1e9) }
+    // Anything that would round to "1000 MB" is shown in GB instead.
+    if bytes >= 999_500_000 { return String(format: "%.1f GB", Double(bytes) / 1e9) }
     return String(format: "%.0f MB", max(1, Double(bytes) / 1e6))
   }
 

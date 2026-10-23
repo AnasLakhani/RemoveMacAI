@@ -257,6 +257,9 @@ func selfTest() -> Bool {
   check(!exited.ok && exited.output.contains("after-exit"), "a step that exits doesn't stop the rest")
   check(Shell.run("/bin/sh", ["-c", Shell.adminScript(["true", "true"])]).ok, "administrator steps succeed together")
   check(Term.pad("abc", 5) == "abc  " && Term.pad("abcdef", 5) == "abcdef ", "columns never run together")
+  check(Term.size(999_999_999) == "1.0 GB" && Term.size(999_500_000) == "1.0 GB"
+    && Term.size(999_499_999) == "999 MB" && Term.size(1_000_000_000) == "1.0 GB"
+    && Term.size(5_000_000) == "5 MB", "sizes that round to 1000 MB are shown in GB")
   check(Storage.isAppleCache("/x/com.apple.Safari") && Storage.isAppleCache("/x/CloudKit")
     && Storage.isAppleCache("/x/GeoServices") && !Storage.isAppleCache("/x/Homebrew")
     && !Storage.isAppleCache("/x/com.google.Chrome"), "macOS caches without the com.apple. prefix are left alone")
