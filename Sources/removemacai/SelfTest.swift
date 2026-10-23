@@ -267,6 +267,9 @@ func selfTest() -> Bool {
     "CLICOLOR_FORCE turns color on and off regardless of the terminal")
   check(Term.paint("x", "31", useColor: true).contains("\u{1B}[31m") && !Term.paint("x", "31", useColor: false).contains("\u{1B}"),
     "stderr text is only colored when its own stream allows it")
+  check(Term.size(999_999_999) == "1.0 GB" && Term.size(999_500_000) == "1.0 GB"
+    && Term.size(999_499_999) == "999 MB" && Term.size(1_000_000_000) == "1.0 GB"
+    && Term.size(5_000_000) == "5 MB", "sizes that round to 1000 MB are shown in GB")
   check(Storage.isAppleCache("/x/com.apple.Safari") && Storage.isAppleCache("/x/CloudKit")
     && Storage.isAppleCache("/x/GeoServices") && !Storage.isAppleCache("/x/Homebrew")
     && !Storage.isAppleCache("/x/com.google.Chrome"), "macOS caches without the com.apple. prefix are left alone")
