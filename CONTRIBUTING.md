@@ -17,6 +17,8 @@ A new tweak goes in `Sources/removemacai/Tweaks.swift`. Check that macOS still r
 
 Translations live in `Localization/<language>.lproj`: `Localizable.strings` keyed by the English text in the code, and `Localizable.stringsdict` for counts. `tools/build-app.sh` copies them into the app. `tools/check-localization.py <language>` lists window text that has no translation yet; run it after changing any text the app shows.
 
+Good first issues: please take one at a time so more people get a turn. Once your PR is merged you're welcome to pick up another.
+
 Every change RemoveMacAI makes is shown before it happens and can be undone, and a new tweak has to keep that. A tweak that can break something people rely on stays out of the presets.
 
 Keep one change per pull request, and say which macOS version and build you tested on. For a bug, the output of `removemacai status` and `sw_vers` helps most.
