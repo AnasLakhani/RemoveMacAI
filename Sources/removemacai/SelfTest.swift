@@ -257,6 +257,16 @@ func selfTest() -> Bool {
   check(!exited.ok && exited.output.contains("after-exit"), "a step that exits doesn't stop the rest")
   check(Shell.run("/bin/sh", ["-c", Shell.adminScript(["true", "true"])]).ok, "administrator steps succeed together")
   check(Term.pad("abc", 5) == "abc  " && Term.pad("abcdef", 5) == "abcdef ", "columns never run together")
+  check(Term.colorEnabled(env: [:], tty: true) && !Term.colorEnabled(env: [:], tty: false),
+    "color follows the terminal when neither NO_COLOR nor CLICOLOR_FORCE is set")
+  check(!Term.colorEnabled(env: ["NO_COLOR": ""], tty: true)
+    && !Term.colorEnabled(env: ["NO_COLOR": "", "CLICOLOR_FORCE": "1"], tty: true),
+    "NO_COLOR turns color off, even when forced or on a terminal")
+  check(Term.colorEnabled(env: ["CLICOLOR_FORCE": "1"], tty: false)
+    && !Term.colorEnabled(env: ["CLICOLOR_FORCE": "0"], tty: true),
+    "CLICOLOR_FORCE turns color on and off regardless of the terminal")
+  check(Term.paint("x", "31", true).contains("\u{1B}[31m") && !Term.paint("x", "31", false).contains("\u{1B}"),
+    "stderr text is only colored when its own stream allows it")
   check(Storage.isAppleCache("/x/com.apple.Safari") && Storage.isAppleCache("/x/CloudKit")
     && Storage.isAppleCache("/x/GeoServices") && !Storage.isAppleCache("/x/Homebrew")
     && !Storage.isAppleCache("/x/com.google.Chrome"), "macOS caches without the com.apple. prefix are left alone")
