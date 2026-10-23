@@ -29,7 +29,7 @@ jobs:
           shasum -a 256 removemacai-darwin-arm64.tar.gz > removemacai-darwin-arm64.tar.gz.sha256
           shasum -a 256 RemoveMacAI.zip > RemoveMacAI.zip.sha256
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             dist/removemacai-darwin-arm64.tar.gz
