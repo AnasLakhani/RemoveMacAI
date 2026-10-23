@@ -280,10 +280,10 @@
 "Hides widgets on the desktop, including in Stage Manager." = "Скрывает виджеты на рабочем столе, в том числе в Stage Manager.";
 "Turn off the play, pause and skip keys" = "Выключить клавиши воспроизведения, паузы и перемотки";
 "Turns off the service behind the media keys, so the play key can't open Music." = "Выключает службу медиаклавиш, чтобы клавиша воспроизведения не открывала Музыку.";
-"The keys stop working in every app, including VLC and Spotify. To keep them and only stop Music opening, use Block Music launches instead." = "Клавиши перестанут работать во всех программах, включая VLC и Spotify. Чтобы оставить их и только запретить открытие Музыки, используйте вместо этого «Блокировать запуск Музыки».";
-"Block Music launches, including from AirPods" = "Блокировать запуск Музыки, в том числе с AirPods";
+"The keys stop working in every app, including VLC and Spotify. To keep them and only stop Music opening, use Stop Music from opening instead." = "Клавиши перестанут работать во всех программах, включая VLC и Spotify. Чтобы оставить их и только запретить открытие Музыки, используйте вместо этого «Запретить открытие Музыки».";
+"Stop Music from opening, even by hand" = "Запретить открытие Музыки, даже вручную";
 "Disables Music's application launch entry, so an AirPod press no longer opens it. No background helper or configuration profile is installed." = "Отключает запись запуска программы «Музыка», чтобы нажатие на AirPods больше её не открывало. Фоновый помощник и профиль конфигурации не устанавливаются.";
-"Closes Music and blocks manual launches too. Reapply after a macOS update replaces Music's files." = "Также закрывает Музыку и блокирует её ручной запуск. Примените заново после того, как обновление macOS заменит файлы Музыки.";
+"Music won't open at all, not even when you click it, until you undo this. Reapply after a macOS update replaces Music's files." = "Музыка не откроется совсем, даже по щелчку, пока вы не отмените это. Примените заново после того, как обновление macOS заменит файлы Музыки.";
 "Turn off iPhone Mirroring" = "Выключить «Повтор экрана iPhone»";
 "Turns iPhone Mirroring off, so the app and its prompts go away." = "Выключает «Повтор экрана iPhone», и программа вместе с её предложениями исчезает.";
 "Turn off Apple Music in the Music app" = "Выключить Apple Music в программе «Музыка»";
