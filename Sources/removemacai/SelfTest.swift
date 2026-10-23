@@ -265,7 +265,7 @@ func selfTest() -> Bool {
   check(Term.colorEnabled(env: ["CLICOLOR_FORCE": "1"], tty: false)
     && !Term.colorEnabled(env: ["CLICOLOR_FORCE": "0"], tty: true),
     "CLICOLOR_FORCE turns color on and off regardless of the terminal")
-  check(Term.paint("x", "31", true).contains("\u{1B}[31m") && !Term.paint("x", "31", false).contains("\u{1B}"),
+  check(Term.paint("x", "31", useColor: true).contains("\u{1B}[31m") && !Term.paint("x", "31", useColor: false).contains("\u{1B}"),
     "stderr text is only colored when its own stream allows it")
   check(Storage.isAppleCache("/x/com.apple.Safari") && Storage.isAppleCache("/x/CloudKit")
     && Storage.isAppleCache("/x/GeoServices") && !Storage.isAppleCache("/x/Homebrew")

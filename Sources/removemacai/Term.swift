@@ -11,8 +11,8 @@ enum Term {
   static let errColor: Bool = colorEnabled(tty: isatty(STDERR_FILENO) == 1)
 
   static func paint(_ s: String, _ code: String, useColor: Bool) -> String { useColor ? "\u{1B}[\(code)m\(s)\u{1B}[0m" : s }
-  static func paint(_ s: String, _ code: String) -> String { paint(s, code, color) }
-  static func errPaint(_ s: String, _ code: String) -> String { paint(s, code, errColor) }
+  static func paint(_ s: String, _ code: String) -> String { paint(s, code, useColor: color) }
+  static func errPaint(_ s: String, _ code: String) -> String { paint(s, code, useColor: errColor) }
   static func bold(_ s: String) -> String { paint(s, "1") }
   static func dim(_ s: String) -> String { paint(s, "2") }
   static func green(_ s: String) -> String { paint(s, "32") }
