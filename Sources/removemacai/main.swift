@@ -70,6 +70,8 @@ guard args.first == "selftest" || supportedOS else { Term.fail("RemoveMacAI need
 
 switch args.first {
 case "status":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.status()
 case "off", nil:
   if !args.isEmpty { args.removeFirst() }
@@ -79,8 +81,12 @@ case "off", nil:
   if let extra = args.first { Term.fail("unknown option \(extra)") }
   exit(Commands.off(keep: keep, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "revert":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.revert()
 case "on":
+  args.removeFirst()
+  if let extra = args.first { Term.fail("unexpected argument \(extra)") }
   Commands.on()
 case "features":
   args.removeFirst()
