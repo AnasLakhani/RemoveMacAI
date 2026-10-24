@@ -27,6 +27,16 @@ func selfTest() -> Bool {
     && !FileManager.default.fileExists(atPath: invalidProfile.path),
     "export rejects unknown options without writing a profile")
 
+  check(unknownCommandMessage("stauts") == "unknown command \"stauts\". Did you mean \"status\"?"
+    && unknownCommandMessage("xyzzy") == "unknown command \"xyzzy\"",
+    "an unknown command names the typo and only suggests a close match")
+  let unknownCommand = Shell.run(executable, ["stauts"])
+  let unknownCommandOutput = unknownCommand.output.replacingOccurrences(
+    of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
+  check(!unknownCommand.ok && unknownCommandOutput.contains("error: unknown command \"stauts\"")
+    && unknownCommandOutput.contains("Did you mean \"status\"?"),
+    "an unknown command fails naming the typo instead of printing bare usage")
+
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
     "off removes every model set this macOS has")
   let keptWriting = Catalog.setsToRemove(keeping: ["writing-tools"])
