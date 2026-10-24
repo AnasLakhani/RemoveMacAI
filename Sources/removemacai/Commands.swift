@@ -324,7 +324,13 @@ enum Commands {
 
   // MARK: features
 
-  static func features() {
+  static func features(json: Bool) {
+    if json {
+      let rows = Catalog.availableFeatures.map { ["id": $0.id, "title": $0.title] }
+      let data = try! JSONSerialization.data(withJSONObject: rows, options: [.prettyPrinted, .sortedKeys])
+      print(String(decoding: data, as: UTF8.self))
+      return
+    }
     for f in Catalog.availableFeatures { print(Term.pad(f.id, 26) + f.title) }
   }
 

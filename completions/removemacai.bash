@@ -35,6 +35,7 @@ _removemacai() {
   local options= names= file
   case ${COMP_WORDS[1]} in
     off) options="--keep --dry-run --yes" ;;
+    features) options="--json" ;;
     tweaks) options="--json" ;;
     apply) options="--preset --dry-run --yes" names=$(_removemacai_tweaks) ;;
     undo) options="--dry-run --yes" names=$(_removemacai_tweaks) ;;

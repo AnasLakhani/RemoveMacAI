@@ -13,7 +13,7 @@ let usage = """
         --dry-run               show what would change, change nothing
         --yes                   do not ask
     removemacai on              turn Apple Intelligence back on, keep the other tweaks
-    removemacai features        list the feature names
+    removemacai features [--json]  list the feature names
 
   Debloat
     removemacai tweaks [--json]           list every tweak and whether it is applied
@@ -123,8 +123,9 @@ case "on":
   Commands.on()
 case "features":
   args.removeFirst()
+  let json = flag("--json")
   if let extra = args.first { Term.fail("unexpected argument \(extra)") }
-  Commands.features()
+  Commands.features(json: json)
 case "tweaks":
   args.removeFirst()
   let json = flag("--json")
