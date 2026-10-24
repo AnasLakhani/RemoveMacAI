@@ -21,7 +21,9 @@ func selfTest() -> Bool {
   defer { try? FileManager.default.removeItem(at: invalidProfile) }
   let executable = Bundle.main.executableURL?.path ?? CommandLine.arguments[0]
   let invalidExport = Shell.run(executable, ["export", invalidProfile.path, "--bogus"])
-  check(!invalidExport.ok && invalidExport.output.contains("error: unknown option --bogus")
+  let invalidExportOutput = invalidExport.output.replacingOccurrences(
+    of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
+  check(!invalidExport.ok && invalidExportOutput.contains("error: unknown option --bogus")
     && !FileManager.default.fileExists(atPath: invalidProfile.path),
     "export rejects unknown options without writing a profile")
 
