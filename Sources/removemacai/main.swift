@@ -47,6 +47,9 @@ func option(_ name: String) -> String? {
   args.removeSubrange(i...(i + 1))
   return value
 }
+func unknownOption(in args: [String]) -> String? {
+  args.first(where: { $0.hasPrefix("-") })
+}
 func presetOption() -> Preset? {
   guard let name = option("--preset") else { return nil }
   guard let preset = Preset(rawValue: name) else {
@@ -102,13 +105,13 @@ case "apply":
   let preset = presetOption()
   let dryRun = flag("--dry-run")
   let yes = flag("--yes") || flag("-y")
-  if let bad = args.first(where: { $0.hasPrefix("-") }) { Term.fail("unknown option \(bad)") }
+  if let bad = unknownOption(in: args) { Term.fail("unknown option \(bad)") }
   exit(TweakCommands.apply(ids: args, preset: preset, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "undo":
   args.removeFirst()
   let dryRun = flag("--dry-run")
   let yes = flag("--yes") || flag("-y")
-  if let bad = args.first(where: { $0.hasPrefix("-") }) { Term.fail("unknown option \(bad)") }
+  if let bad = unknownOption(in: args) { Term.fail("unknown option \(bad)") }
   exit(TweakCommands.undo(ids: args, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "background":
   args.removeFirst()
@@ -118,13 +121,14 @@ case "clean":
   args.removeFirst()
   let dryRun = flag("--dry-run")
   let yes = flag("--yes") || flag("-y")
-  if let bad = args.first(where: { $0.hasPrefix("-") }) { Term.fail("unknown option \(bad)") }
+  if let bad = unknownOption(in: args) { Term.fail("unknown option \(bad)") }
   exit(TweakCommands.clean(ids: args, dryRun: dryRun, yes: yes) ? 0 : 1)
 case "export":
   args.removeFirst()
   let preset = presetOption()
   let keep = Set((option("--keep") ?? "").split(separator: ",").map { String($0).trimmed }.filter { !$0.isEmpty })
   let noAI = flag("--no-ai")
+  if let bad = unknownOption(in: args) { Term.fail("unknown option \(bad)") }
   guard let path = args.first else { Term.fail("name the file to write, for example: removemacai export RemoveMacAI.mobileconfig") }
   TweakCommands.export(path: path, ids: Array(args.dropFirst()), preset: preset, keepAI: keep, noAI: noAI)
 case "selftest":

@@ -13,6 +13,20 @@ func selfTest() -> Bool {
     return false
   }
 
+  check(unknownOption(in: ["RemoveMacAI.mobileconfig", "--bogus"]) == "--bogus"
+    && unknownOption(in: ["RemoveMacAI.mobileconfig", "analytics"]) == nil,
+    "export distinguishes unknown options from tweak names")
+  let invalidProfile = FileManager.default.temporaryDirectory
+    .appendingPathComponent("removemacai-export-selftest-\(UUID().uuidString).mobileconfig")
+  defer { try? FileManager.default.removeItem(at: invalidProfile) }
+  let executable = Bundle.main.executableURL?.path ?? CommandLine.arguments[0]
+  let invalidExport = Shell.run(executable, ["export", invalidProfile.path, "--bogus"])
+  let invalidExportOutput = invalidExport.output.replacingOccurrences(
+    of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
+  check(!invalidExport.ok && invalidExportOutput.contains("error: unknown option --bogus")
+    && !FileManager.default.fileExists(atPath: invalidProfile.path),
+    "export rejects unknown options without writing a profile")
+
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
     "off removes every model set this macOS has")
   let keptWriting = Catalog.setsToRemove(keeping: ["writing-tools"])
