@@ -50,6 +50,36 @@ func option(_ name: String) -> String? {
 func unknownOption(in args: [String]) -> String? {
   args.first(where: { $0.hasPrefix("-") })
 }
+let knownCommands = [
+  "status", "off", "on", "revert", "features", "tweaks", "apply", "undo",
+  "background", "clean", "export", "selftest", "app", "help", "version",
+]
+func commandDistance(_ a: String, _ b: String) -> Int {
+  let a = Array(a), b = Array(b)
+  var row = Array(0...b.count)
+  for (i, ca) in a.enumerated() {
+    var next = [i + 1] + Array(repeating: 0, count: b.count)
+    for (j, cb) in b.enumerated() {
+      next[j + 1] = ca == cb ? row[j] : min(row[j], min(row[j + 1], next[j])) + 1
+    }
+    row = next
+  }
+  return row[b.count]
+}
+func suggestCommand(for name: String) -> String? {
+  var closest: String?
+  var closestDistance = Int.max
+  for command in knownCommands {
+    let distance = commandDistance(name, command)
+    if distance < closestDistance { closest = command; closestDistance = distance }
+  }
+  return closestDistance <= 2 ? closest : nil
+}
+func unknownCommandMessage(_ name: String) -> String {
+  var message = "unknown command \"\(name)\""
+  if let hint = suggestCommand(for: name) { message += ". Did you mean \"\(hint)\"?" }
+  return message
+}
 func presetOption() -> Preset? {
   guard let name = option("--preset") else { return nil }
   guard let preset = Preset(rawValue: name) else {
@@ -138,6 +168,7 @@ case "--version", "-v", "version":
 case "help", "--help", "-h":
   print(usage, terminator: "")
 default:
+  if let command = args.first { Term.fail(unknownCommandMessage(command)) }
   print(usage, terminator: "")
   exit(1)
 }
