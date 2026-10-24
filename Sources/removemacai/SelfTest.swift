@@ -13,6 +13,10 @@ func selfTest() -> Bool {
     return false
   }
 
+  check(unknownOption(in: ["RemoveMacAI.mobileconfig", "--bogus"]) == "--bogus"
+    && unknownOption(in: ["RemoveMacAI.mobileconfig", "analytics"]) == nil,
+    "export distinguishes unknown options from tweak names")
+
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
     "off removes every model set this macOS has")
   let keptWriting = Catalog.setsToRemove(keeping: ["writing-tools"])
