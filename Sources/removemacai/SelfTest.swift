@@ -26,6 +26,12 @@ func selfTest() -> Bool {
   check(!invalidExport.ok && invalidExportOutput.contains("error: unknown option --bogus")
     && !FileManager.default.fileExists(atPath: invalidProfile.path),
     "export rejects unknown options without writing a profile")
+  let featuresJSON = Shell.run(executable, ["features", "--json"])
+  let featureRows = (try? JSONSerialization.jsonObject(with: Data(featuresJSON.output.utf8)) as? [[String: String]]) ?? []
+  check(featuresJSON.ok && featureRows.count == Catalog.availableFeatures.count
+    && featureRows.allSatisfy { Set($0.keys) == ["id", "title"] }
+    && Set(featureRows.compactMap { $0["id"] }) == Set(Catalog.availableFeatures.map(\.id)),
+    "features --json lists each feature's id and title for scripts")
 
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
     "off removes every model set this macOS has")
