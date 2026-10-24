@@ -33,7 +33,7 @@ func selfTest() -> Bool {
   let unknownCommand = Shell.run(executable, ["stauts"])
   let unknownCommandOutput = unknownCommand.output.replacingOccurrences(
     of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
-  check(!unknownCommand.ok && unknownCommandOutput.contains("error: unknown command \"stauts\"")
+  check(unknownCommand.status == 1 && unknownCommandOutput.contains("error: unknown command \"stauts\"")
     && unknownCommandOutput.contains("Did you mean \"status\"?"),
     "an unknown command fails naming the typo instead of printing bare usage")
 
