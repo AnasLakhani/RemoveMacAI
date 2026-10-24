@@ -46,7 +46,7 @@ complete -c removemacai -n '__removemacai_using apply export' -l preset -x \
 complete -c removemacai -n '__removemacai_using off apply undo clean' -l dry-run \
     -d 'Show what would change, change nothing'
 complete -c removemacai -n '__removemacai_using off apply undo background clean' -l yes -d 'Do not ask'
-complete -c removemacai -n '__removemacai_using tweaks' -l json -d 'Print JSON for scripts'
+complete -c removemacai -n '__removemacai_using features tweaks' -l json -d 'Print JSON for scripts'
 complete -c removemacai -n '__removemacai_using export' -l no-ai -d 'Leave Apple Intelligence out'
 complete -c removemacai -n '__removemacai_using apply undo' -a '(__removemacai_tweaks)'
 complete -c removemacai -n '__removemacai_using export' -a '(__removemacai_profile_tweaks)'
