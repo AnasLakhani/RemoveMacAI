@@ -45,7 +45,8 @@ func selfTest() -> Bool {
   let unknownAction = Shell.run(executable, ["background", "of"])
   let unknownActionOutput = unknownAction.output.replacingOccurrences(
     of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
-  check(unknownAction.status == 1 && unknownActionOutput.contains("error: unknown action \"of\", use off or on"),
+  check(unknownAction.status == 1
+    && unknownActionOutput.trimmingCharacters(in: .whitespacesAndNewlines) == "error: unknown action \"of\", use off or on",
     "background fails on an unknown action instead of listing items")
 
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
