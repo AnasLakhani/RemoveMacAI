@@ -413,5 +413,5 @@
 "Turn off everything except 1 kept feature" = "Выключить всё, кроме 1 оставленной функции";
 "What it runs is gone, so it's left over from a deleted app." = "Программы, которую он запускает, больше нет, — это остаток удалённого приложения.";
 "Move this leftover background item to the Trash?" = "Переместить этот оставшийся фоновый объект в Корзину?";
-"%@ runs something that is no longer on this Mac. Put Back in the Trash restores it. Items marked All users ask for your password." = "%@ запускает то, чего на этом Mac больше нет. Восстановить его можно командой «Вернуть» в Корзине. Для объектов с пометкой «Все пользователи» потребуется пароль.";
+"%@ runs something that is no longer on this Mac. It goes to the Trash, so you can drag it back to restore it. Items marked All users ask for your password." = "%@ запускает то, чего на этом Mac больше нет. Объект переместится в Корзину, и его можно будет перетащить обратно, чтобы восстановить. Для объектов с пометкой «Все пользователи» потребуется пароль.";
 "RemoveMacAI needs your password to move background items only an administrator can change." = "RemoveMacAI требуется ваш пароль, чтобы переместить фоновые объекты, которые может изменять только администратор.";

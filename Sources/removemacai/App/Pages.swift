@@ -423,7 +423,7 @@ struct BackgroundView: View {
     ) { item in
       Button("Move to Trash") { model.trashBackground(item) }
     } message: { item in
-      Text(String(localized: "\(item.label) runs something that is no longer on this Mac. Put Back in the Trash restores it. Items marked All users ask for your password."))
+      Text(String(localized: "\(item.label) runs something that is no longer on this Mac. It goes to the Trash, so you can drag it back to restore it. Items marked All users ask for your password."))
     }
     .toolbar {
       ToolbarItem {
