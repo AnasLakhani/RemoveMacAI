@@ -290,6 +290,9 @@ func selfTest() -> Bool {
     && Updates.isNewer("1.2.0-beta.10", than: "1.2.0-beta.9") && !Updates.isNewer("1.2.0-beta.1", than: "1.2.0")
     && Updates.isNewer("1.10.0", than: "1.9.9") && !Updates.isNewer("1.1.4", than: "1.1.4"),
     "update checks treat a beta as older than its release and compare numbers as numbers")
+  check(Updates.isVersion("1.2.0") && Updates.isVersion("1.2.0-beta.1") && !Updates.isVersion("")
+    && !Updates.isVersion("latest") && !Updates.isVersion("1.2.") && !Updates.isNewer("", than: "1.2.0"),
+    "an update check only accepts version numbers, and an empty one can't crash it")
   check(Term.pad("abc", 5) == "abc  " && Term.pad("abcdef", 5) == "abcdef ", "columns never run together")
   check(Term.colorEnabled(env: [:], tty: true) && !Term.colorEnabled(env: [:], tty: false),
     "color follows the terminal when neither NO_COLOR nor CLICOLOR_FORCE is set")
