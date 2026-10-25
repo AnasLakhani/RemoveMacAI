@@ -16,6 +16,7 @@ struct RemoveMacAIApp: App {
       CommandGroup(replacing: .newItem) {}
       CommandGroup(replacing: .appInfo) {
         Button("About RemoveMacAI") { AppDelegate.showAbout() }
+        Button("Check for Updates…") { AppDelegate.checkForUpdates() }
       }
       CommandGroup(after: .toolbar) {
         Button("Reload") { model.reload(resetChoices: true) }.keyboardShortcut("r")
@@ -53,6 +54,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+  /// Asks GitHub for the latest release, only when chosen from the menu.
+  static func checkForUpdates() {
+    Task { @MainActor in
+      let alert = NSAlert()
+      switch await Updates.latest() {
+      case .success(let release) where Updates.isNewer(release.version, than: appVersion):
+        alert.messageText = String(localized: "RemoveMacAI \(release.version) is available.")
+        alert.informativeText = String(localized: "You have \(appVersion). Download the new version from GitHub and replace this app with it.")
+        alert.addButton(withTitle: String(localized: "Download"))
+        alert.addButton(withTitle: String(localized: "Not Now"))
+        if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(release.page) }
+        return
+      case .success:
+        alert.messageText = String(localized: "RemoveMacAI is up to date.")
+        alert.informativeText = String(localized: "You have \(appVersion), the latest version.")
+      case .failure(let error):
+        alert.messageText = String(localized: "RemoveMacAI couldn't check for updates.")
+        alert.informativeText = error.localizedDescription
+      }
+      alert.runModal()
+    }
+  }
 
   static func showAbout() {
     let credits = NSMutableAttributedString(

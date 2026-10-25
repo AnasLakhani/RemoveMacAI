@@ -3,6 +3,7 @@
 
 "RemoveMacAI" = "RemoveMacAI";
 "About RemoveMacAI" = "О программе RemoveMacAI";
+"Check for Updates…" = "Проверить обновления…";
 "Reload" = "Обновить";
 "How RemoveMacAI Works" = "Как работает RemoveMacAI";
 "RemoveMacAI on GitHub" = "RemoveMacAI на GitHub";
@@ -411,3 +412,10 @@
 "RemoveMacAI needs your password to change background items for all users." = "RemoveMacAI требуется ваш пароль, чтобы изменить фоновые объекты для всех пользователей.";
 "RemoveMacAI needs your password to move items only an administrator can change." = "RemoveMacAI требуется ваш пароль, чтобы переместить объекты, которые может изменять только администратор.";
 "Turn off everything except 1 kept feature" = "Выключить всё, кроме 1 оставленной функции";
+"RemoveMacAI %@ is available." = "Доступна версия RemoveMacAI %@.";
+"You have %@. Download the new version from GitHub and replace this app with it." = "У вас версия %@. Скачайте новую версию с GitHub и замените ею это приложение.";
+"Download" = "Скачать";
+"Not Now" = "Не сейчас";
+"RemoveMacAI is up to date." = "У вас последняя версия RemoveMacAI.";
+"You have %@, the latest version." = "У вас версия %@ — она последняя.";
+"RemoveMacAI couldn't check for updates." = "RemoveMacAI не удалось проверить обновления.";

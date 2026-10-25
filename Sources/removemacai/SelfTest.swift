@@ -286,6 +286,10 @@ func selfTest() -> Bool {
   let exited = Shell.run("/bin/sh", ["-c", Shell.adminScript(["exit 3", "echo after-exit"])])
   check(!exited.ok && exited.output.contains("after-exit"), "a step that exits doesn't stop the rest")
   check(Shell.run("/bin/sh", ["-c", Shell.adminScript(["true", "true"])]).ok, "administrator steps succeed together")
+  check(Updates.isNewer("1.2.0", than: "1.2.0-beta.1") && !Updates.isNewer("1.1.4", than: "1.2.0-beta.1")
+    && Updates.isNewer("1.2.0-beta.10", than: "1.2.0-beta.9") && !Updates.isNewer("1.2.0-beta.1", than: "1.2.0")
+    && Updates.isNewer("1.10.0", than: "1.9.9") && !Updates.isNewer("1.1.4", than: "1.1.4"),
+    "update checks treat a beta as older than its release and compare numbers as numbers")
   check(Term.pad("abc", 5) == "abc  " && Term.pad("abcdef", 5) == "abcdef ", "columns never run together")
   check(Term.colorEnabled(env: [:], tty: true) && !Term.colorEnabled(env: [:], tty: false),
     "color follows the terminal when neither NO_COLOR nor CLICOLOR_FORCE is set")

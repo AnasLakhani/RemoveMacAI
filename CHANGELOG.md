@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The app has a Check for Updates… item in the RemoveMacAI menu. It asks GitHub for the latest release and offers to open its download page. It only checks when you choose it, so RemoveMacAI still makes no network requests on its own (#44).
 - Block Music launches is now called Stop Music from opening, even by hand, and its warning says Music won't open at all until you undo it. The old name read as if only AirPods were blocked (#67).
 
 ## 1.2.0-beta.1
