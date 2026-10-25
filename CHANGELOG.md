@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The app has an Install Command Line Tool… item in the RemoveMacAI menu. It asks first, then links `/usr/local/bin/removemacai` to the app, so the app from the zip gets the `removemacai` command too. It never replaces a file there that isn't a link (#60).
 - Block Music launches is now called Stop Music from opening, even by hand, and its warning says Music won't open at all until you undo it. The old name read as if only AirPods were blocked (#67).
 
 ## 1.2.0-beta.1
