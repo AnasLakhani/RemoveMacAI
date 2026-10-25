@@ -47,7 +47,7 @@
 "Show System Settings" = "システム設定を表示";
 "All done" = "完了";
 "Finished, with a few problems" = "完了（いくつかの問題あり）";
-"Deleted %@ of Apple Intelligence models. macOS clears the files on its own schedule, so Storage settings may show the old size for a while." = "Apple Intelligenceのモデル%@を削除しました。macOSは独自のスケジュールでファイルを削除するため、ストレージ設定にはしばらく以前のサイズが表示されることがあります。";
+"Deleted %@ of Apple Intelligence models. macOS clears the files on its own schedule, so Storage settings may show the old size for a while." = "Apple Intelligenceのモデルを%@削除しました。macOSは独自のスケジュールでファイルを削除するため、ストレージ設定にはしばらく以前のサイズが表示されることがあります。";
 "I make RemoveMacAI by myself in my spare time. If it was useful to you, you can sponsor it on GitHub." = "私は余暇に一人でRemoveMacAIを開発しています。役に立った場合は、GitHubでスポンサーいただけます。";
 "Sponsor on GitHub" = "GitHubでスポンサーする";
 "Changed your mind? Undo in the sidebar puts everything back." = "気が変わりましたか？ サイドバーの「取り消す」ですべて元に戻せます。";
@@ -59,7 +59,7 @@
 "Overview" = "概要";
 "Apple Intelligence is off" = "Apple Intelligenceはオフです";
 "Apple Intelligence is on" = "Apple Intelligenceはオンです";
-"%@ of models out of %@ of storage" = "ストレージ%2$@のうちモデルに%1$@";
+"%@ of models out of %@ of storage" = "ストレージ%2$@のうち、モデルが%1$@を占めています。";
 "Delete the Leftover Models…" = "残ったモデルを削除…";
 "Change What's Kept On" = "オンのままにする項目を変更";
 "Turn Off with Recommended Settings…" = "推奨設定でオフにする…";
@@ -251,7 +251,7 @@
 "Stop macOS rewriting what you type." = "macOSが入力を勝手に書き換えるのを止めます。";
 "Recommended" = "推奨";
 "Maximum privacy" = "最大限のプライバシー";
-"Apple Intelligence off, no analytics or ads, fewer pop-ups. Nothing you rely on stops working." = "Apple Intelligenceはオフ、分析データや広告なし、ポップアップも減らします。頼りにしているものは何も動かなくなります。";
+"Apple Intelligence off, no analytics or ads, fewer pop-ups. Nothing you rely on stops working." = "Apple Intelligenceはオフ、分析データや広告なし、ポップアップも減らします。頼りにしているものは、どれも動き続けます。";
 "Everything in Recommended, plus Game Center and Safari's search suggestions off." = "推奨のすべてに加え、Game CenterとSafariの検索候補もオフにします。";
 "Applies on review" = "確認後に適用";
 "Undoes on review" = "確認後に取り消し";
