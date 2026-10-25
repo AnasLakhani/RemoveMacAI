@@ -23,6 +23,17 @@ struct BackgroundItem: Identifiable, Hashable {
     [label, (program as NSString).lastPathComponent].contains { $0.lowercased().contains("update") }
   }
 
+  /// Whether what it runs is gone, as when its app was deleted and the agent
+  /// stayed behind. Such an item can't run, so it can go to the Trash.
+  var isLeftover: Bool {
+    var path = program
+    if Self.interpreters.contains((program as NSString).lastPathComponent),
+      let script = arguments.dropFirst().first(where: { $0.hasPrefix("/") }) {
+      path = script
+    }
+    return path.hasPrefix("/") && !FileManager.default.fileExists(atPath: path)
+  }
+
   /// What switching it off can break, or nil for an updater.
   var warning: String? {
     isUpdater ? nil : "Not an updater. Turning it off can stop \(owner) working."
@@ -125,6 +136,43 @@ enum BackgroundItems {
     for item in items where isDisabled(item, after) != disabled {
       problems.append("\(item.label) is still \(disabled ? "on" : "off")")
     }
+    return problems
+  }
+
+  /// Stops leftover items and moves their files to the Trash, where Put Back
+  /// restores them. Files another user owns share one administrator prompt.
+  static func trash(_ items: [BackgroundItem]) -> [String] {
+    var journal = Engine.loadJournal()
+    if let blocked = Engine.journalBlocked { return [blocked] }
+    var problems: [String] = []
+    var adminCommands: [String] = []
+    let trash = Storage.home + "/.Trash"
+    for item in items {
+      if item.system {
+        adminCommands.append("/bin/launchctl bootout \(Shell.quote(item.target)) || true")
+      } else {
+        Shell.run("/bin/launchctl", ["bootout", item.target])
+      }
+      do {
+        try FileManager.default.trashItem(at: URL(fileURLWithPath: item.plist), resultingItemURL: nil)
+      } catch {
+        guard FileManager.default.fileExists(atPath: item.plist) else { continue }
+        let target = trash + "/" + Storage.uniqueName((item.plist as NSString).lastPathComponent, in: trash)
+        adminCommands.append("/bin/mv -f \(Shell.quote(item.plist)) \(Shell.quote(target))")
+      }
+    }
+    if !adminCommands.isEmpty {
+      let result = Shell.admin(adminCommands, prompt: String(localized: "RemoveMacAI needs your password to move background items only an administrator can change."))
+      if !result.ok { problems.append(Shell.adminError(result)) }
+    }
+    for item in items {
+      if FileManager.default.fileExists(atPath: item.plist) {
+        problems.append("\(item.label) is still in \((item.plist as NSString).deletingLastPathComponent)")
+      } else {
+        journal.entries[item.id] = nil
+      }
+    }
+    Engine.save(journal)
     return problems
   }
 

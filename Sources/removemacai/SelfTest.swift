@@ -280,6 +280,14 @@ func selfTest() -> Bool {
   let helper = BackgroundItem(label: "dev.orbstack.OrbStack.privhelper", plist: "",
     program: "/Library/PrivilegedHelperTools/dev.orbstack.OrbStack.privhelper", system: true)
   check(script.owner == "sync.sh" && helper.owner == "OrbStack", "background items are named after what they run")
+  let goneApp = BackgroundItem(label: "com.example.gone", plist: "", program: "/Applications/Gone-\(UUID().uuidString).app/Contents/MacOS/helper", system: false)
+  let goneScript = BackgroundItem(label: "com.example.gone-script", plist: "", program: "/bin/bash",
+    arguments: ["/bin/bash", "/nonexistent-\(UUID().uuidString)/sync.sh"], system: false)
+  let present = BackgroundItem(label: "com.example.present", plist: "", program: "/bin/bash",
+    arguments: ["/bin/bash", "/bin/sh"], system: false)
+  let bare = BackgroundItem(label: "com.example.bare", plist: "", program: "helper", system: false)
+  check(goneApp.isLeftover && goneScript.isLeftover && !present.isLeftover && !bare.isLeftover,
+    "a background item is left over only when what it runs is gone")
 
   let ranAll = Shell.run("/bin/sh", ["-c", Shell.adminScript(["false", "echo second"])])
   check(!ranAll.ok && ranAll.output.contains("second"), "one failed administrator step doesn't skip the rest")

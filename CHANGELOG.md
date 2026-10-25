@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Background Items marks items left over from a deleted app, whose program is no longer on the Mac, and has a minus button to move them to the Trash. Put Back restores one. `removemacai background` marks them as left over too (#66).
 - Block Music launches is now called Stop Music from opening, even by hand, and its warning says Music won't open at all until you undo it. The old name read as if only AirPods were blocked (#67).
 
 ## 1.2.0-beta.1
