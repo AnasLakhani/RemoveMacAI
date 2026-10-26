@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The app is translated into Hindi and Urdu (#101). Urdu keeps the names of macOS screens and buttons in English, since macOS has no Urdu interface.
 - Block Music launches is now called Stop Music from opening, even by hand, and its warning says Music won't open at all until you undo it. The old name read as if only AirPods were blocked (#67).
 
 ## 1.2.0-beta.1
