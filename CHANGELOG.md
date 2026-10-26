@@ -3,6 +3,7 @@
 ## Unreleased
 
 - The app has an Install Command Line Tool… item in the RemoveMacAI menu. It asks first, then links `/usr/local/bin/removemacai` to the app, so the app from the zip gets the `removemacai` command too. It never replaces a file there that isn't a link (#60).
+- `removemacai background` with an action other than `off` or `on`, such as the typo `of`, now fails and says which actions it takes, instead of listing the items and exiting 0 (#82).
 - The app is translated into Hindi and Urdu (#101). Urdu keeps the names of macOS screens and buttons in English, since macOS has no Urdu interface.
 - Block Music launches is now called Stop Music from opening, even by hand, and its warning says Music won't open at all until you undo it. The old name read as if only AirPods were blocked (#67).
 
