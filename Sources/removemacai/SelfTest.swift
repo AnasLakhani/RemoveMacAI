@@ -42,6 +42,12 @@ func selfTest() -> Bool {
   check(unknownCommand.status == 1 && unknownCommandOutput.contains("error: unknown command \"stauts\"")
     && unknownCommandOutput.contains("Did you mean \"status\"?"),
     "an unknown command fails naming the typo instead of printing bare usage")
+  let unknownAction = Shell.run(executable, ["background", "of"])
+  let unknownActionOutput = unknownAction.output.replacingOccurrences(
+    of: #"\x1B\[[0-9;]*m"#, with: "", options: .regularExpression)
+  check(unknownAction.status == 1
+    && unknownActionOutput.trimmingCharacters(in: .whitespacesAndNewlines) == "error: unknown action \"of\", use off or on",
+    "background fails on an unknown action instead of listing items")
 
   check(Set(Catalog.setsToRemove(keeping: [])) == Set(Catalog.availableModelSets.map(\.name)),
     "off removes every model set this macOS has")
@@ -285,6 +291,19 @@ func selfTest() -> Bool {
   check(!ranAll.ok && ranAll.output.contains("second"), "one failed administrator step doesn't skip the rest")
   let exited = Shell.run("/bin/sh", ["-c", Shell.adminScript(["exit 3", "echo after-exit"])])
   check(!exited.ok && exited.output.contains("after-exit"), "a step that exits doesn't stop the rest")
+  let toolFolder = FileManager.default.temporaryDirectory.appendingPathComponent("removemacai-cli-\(UUID().uuidString)")
+  defer { try? FileManager.default.removeItem(at: toolFolder) }
+  let toolLink = toolFolder.appendingPathComponent("bin/removemacai").path
+  let binary = "/Applications/Remove Mac AI's.app/Contents/MacOS/RemoveMacAI"
+  let linked = Shell.run("/bin/sh", ["-c", Shell.adminScript(CommandLineTool.commands(linking: binary, at: toolLink))])
+  let relinked = Shell.run("/bin/sh", ["-c", Shell.adminScript(CommandLineTool.commands(linking: binary, at: toolLink))])
+  check(linked.ok && relinked.ok && (try? FileManager.default.destinationOfSymbolicLink(atPath: toolLink)) == binary,
+    "the command line tool links to the app, even from a path with spaces and quotes")
+  let toolFile = toolFolder.appendingPathComponent("bin/other").path
+  FileManager.default.createFile(atPath: toolFile, contents: Data("keep".utf8))
+  let refused = Shell.run("/bin/sh", ["-c", Shell.adminScript(CommandLineTool.commands(linking: binary, at: toolFile))])
+  check(!refused.ok && refused.output.contains("isn't a link") && (try? String(contentsOfFile: toolFile, encoding: .utf8)) == "keep",
+    "the command line tool never replaces a file that isn't a link")
   check(Shell.run("/bin/sh", ["-c", Shell.adminScript(["true", "true"])]).ok, "administrator steps succeed together")
   check(Updates.isNewer("1.2.0", than: "1.2.0-beta.1") && !Updates.isNewer("1.1.4", than: "1.2.0-beta.1")
     && Updates.isNewer("1.2.0-beta.10", than: "1.2.0-beta.9") && !Updates.isNewer("1.2.0-beta.1", than: "1.2.0")

@@ -51,7 +51,7 @@ This runs the command-line version from a temporary folder and installs nothing.
 brew install omlahore/tap/removemacai
 ```
 
-The app and the command line are the same program and share the same undo history.
+The app and the command line are the same program and share the same undo history. If you installed the app from the zip, choose RemoveMacAI > Install Command Line Tool… to get the `removemacai` command too.
 
 ## What it does
 

@@ -4,6 +4,7 @@
 "RemoveMacAI" = "RemoveMacAI";
 "About RemoveMacAI" = "О программе RemoveMacAI";
 "Check for Updates…" = "Проверить обновления…";
+"Install Command Line Tool…" = "Установить инструмент командной строки…";
 "Reload" = "Обновить";
 "How RemoveMacAI Works" = "Как работает RemoveMacAI";
 "RemoveMacAI on GitHub" = "RemoveMacAI на GitHub";
@@ -419,3 +420,15 @@
 "RemoveMacAI is up to date." = "У вас последняя версия RemoveMacAI.";
 "You have %@, the latest version." = "У вас версия %@ — она последняя.";
 "RemoveMacAI couldn't check for updates." = "RemoveMacAI не удалось проверить обновления.";
+
+"The removemacai command is already installed." = "Команда removemacai уже установлена.";
+"Open Terminal and run removemacai status." = "Откройте Терминал и выполните removemacai status.";
+"Something else is already at %@." = "По пути %@ уже что-то есть.";
+"RemoveMacAI left it as it is. Remove it first, then try again." = "RemoveMacAI ничего не изменил. Сначала удалите это, затем попробуйте снова.";
+"Install the removemacai command?" = "Установить команду removemacai?";
+"This links %@ to this app, so you can run removemacai in Terminal. If you move or delete the app, the command stops working. macOS asks for your password." = "По пути %@ будет создана ссылка на это приложение, чтобы removemacai можно было запускать в Терминале. Если переместить или удалить приложение, команда перестанет работать. macOS запросит пароль.";
+"Install" = "Установить";
+"RemoveMacAI needs your password to install the removemacai command." = "RemoveMacAI требуется ваш пароль, чтобы установить команду removemacai.";
+"The removemacai command is installed." = "Команда removemacai установлена.";
+"Open a new Terminal window and run removemacai status." = "Откройте новое окно Терминала и выполните removemacai status.";
+"The removemacai command wasn't installed." = "Команда removemacai не установлена.";
